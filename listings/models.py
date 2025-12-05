@@ -1,13 +1,15 @@
 from random import choices
-from django.db import models
+from django.contrib.gis.db import models
 from django.utils import timezone
+from django.contrib.gis.geos import Point
+
 
 class Listing(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     choices_area = (
-        ('Inner London', 'Inner London'),
-        ('Outer London', 'Outer London'),
+        ('Inner Kathmandu', 'Inner Kathmandu'),
+        ('Outer Kathmandu', 'Outer Kathmandu'),
     )
     
     area = models.CharField(max_length=20, blank= True, null= True, choices=choices_area)
@@ -39,6 +41,12 @@ class Listing(models.Model):
     cctv = models.BooleanField(default=False)
     parking = models.BooleanField(default=False)
     date_posted = models.DateTimeField(default=timezone.now)
+    location = models.PointField(blank=True, null= True, srid=4326)
+    
+    
+    def __str__(self):
+        return self.title
+    
     
     
     

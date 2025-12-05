@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,7 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
+    'rest_framework',
+    'rest_framework_gis',
+    
     'listings',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +81,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME':'lbrep_db',
+        'USER':'postgres',
+        'PASSWORD':'Rajesh@444',
+        'HOST':'localhost',
+        'PORT':'5432',
+        
     }
 }
 
@@ -116,3 +127,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+AUTH_USER_MODEL = 'users.User'
