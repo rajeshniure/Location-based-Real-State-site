@@ -11,10 +11,14 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
+import { useNavigate } from "react-router";
+
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
 
   const menuItems: string[] = ["Listings", "Agencies"];
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -28,25 +32,31 @@ const Navbar: React.FC = () => {
         }}
       >
         <Toolbar sx={{ display: "flex", alignItems: "center" }}>
-          <Typography
-            variant="h4"
-            fontWeight={700}
-            sx={{ cursor: "pointer", color: "#EBAF70" }}
+          <Box
+            onClick={() => navigate("/")}
+            sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
           >
-            Ghar
-          </Typography>
-          <Typography
-            variant="h4"
-            fontWeight={700}
-            sx={{ cursor: "pointer" }}
-          >
-            Sewa
-          </Typography>
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              sx={{ cursor: "pointer", color: "#EBAF70" }}
+            >
+              Ghar
+            </Typography>
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              sx={{ cursor: "pointer" }}
+            >
+              Sewa
+            </Typography>
+          </Box>
 
           {/* Desktop Menu */}
           <Box sx={{ ml: 5, display: { xs: "none", md: "flex" }, gap: 3 }}>
             {menuItems.map((item) => (
               <Button
+                onClick={() => navigate(`/${item.toLowerCase()}`)}
                 key={item}
                 sx={{
                   color: "white",
@@ -75,6 +85,7 @@ const Navbar: React.FC = () => {
             </Button>
 
             <Button
+              onClick={() => navigate("/login")}
               sx={{
                 background: "#f5f5f5",
                 color: "#000",
@@ -115,11 +126,11 @@ const Navbar: React.FC = () => {
             </IconButton>
           </Box>
 
-          {/* Menu items using ul/li */}
           <ul style={{ listStyle: "none", padding: 0, marginTop: "2rem" }}>
             {menuItems.map((item) => (
               <li key={item} style={{ marginBottom: "1rem" }}>
                 <Button
+                  onClick={() => navigate(`/${item.toLowerCase()}`)}
                   sx={{
                     color: "white",
                     textTransform: "none",
@@ -151,6 +162,7 @@ const Navbar: React.FC = () => {
 
             <li>
               <Button
+                onClick={() => navigate("/login")}
                 sx={{
                   background: "#f5f5f5",
                   color: "#000",
