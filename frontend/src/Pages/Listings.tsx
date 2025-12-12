@@ -8,9 +8,11 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Polygon } from "react-leaflet";
 import { Icon } from "leaflet";
 
+
+import polygonOne from "../Components/shape";
 import houseIconPng from "../assets/Mapicons/house.png";
 import apertmentIconPng from "../assets/Mapicons/apartment.png";
 import officeIconPng from "../assets/Mapicons/office.png";
@@ -33,6 +35,7 @@ export interface Listing {
   property_status: "Rent" | "Sale";
   rental_frequency?: "Day" | "Week" | "Month" | null;
 }
+
 
 function Listings() {
   const houseIcon = new Icon({
@@ -59,6 +62,13 @@ function Listings() {
     setLatitude(27.705989268509068);
     setLongitude(85.31711091327156);
   }
+
+const polyOne :[number, number][] = [
+  [27.705, 85.325],
+  [27.710, 85.330],
+  [27.715, 85.320],
+]
+
 
   return (
     <Grid container spacing={2}>
@@ -162,6 +172,8 @@ function Listings() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            <Polyline positions={polyOne} weight={10} color="green" />
+            <Polygon positions={polygonOne} color="blue" fillColor="blue" fillOpacity={0.9} />
 
             {myListings.map((listing: Listing) => {
               const IconDisplay = () => {
