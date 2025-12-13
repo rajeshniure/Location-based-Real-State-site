@@ -1,3 +1,8 @@
+import { useState, useEffect } from "react";
+import Axios from "axios";
+import {AxiosError} from "axios";
+
+
 import {
   Box,
   Button,
@@ -18,9 +23,8 @@ import apertmentIconPng from "../assets/Mapicons/apartment.png";
 import officeIconPng from "../assets/Mapicons/office.png";
 
 // import img1 from "../assets/img1.jpg"
-import { useState } from "react";
 
-import myListings from "../assets/Data/Dummydata";
+// import myListings from "../assets/Data/Dummydata";
 
 export interface Listing {
   id: number;
@@ -38,6 +42,11 @@ export interface Listing {
 
 
 function Listings() {
+
+  //  fetch("http://127.0.0.1:8000/api/listings/")
+  //  .then(response => response.json())
+  //  .then(data => console.log(data));
+
   const houseIcon = new Icon({
     iconUrl: houseIconPng,
     iconSize: [40, 40],
@@ -51,23 +60,41 @@ function Listings() {
     iconSize: [40, 40],
   });
 
-  const [latitude, setLatitude] = useState(27.705989268509068);
-  const [longitude, setLongitude] = useState(85.31711091327156);
+  // const [latitude, setLatitude] = useState(27.705989268509068);
+  // const [longitude, setLongitude] = useState(85.31711091327156);
 
-  function GoEast() {
-    setLatitude(27.705556704779944);
-    setLongitude(85.32283053794626);
-  }
-  function GoCenter() {
-    setLatitude(27.705989268509068);
-    setLongitude(85.31711091327156);
-  }
+  // function GoEast() {
+  //   setLatitude(27.705556704779944);
+  //   setLongitude(85.32283053794626);
+  // }
+  // function GoCenter() {
+  //   setLatitude(27.705989268509068);
+  //   setLongitude(85.31711091327156);
+  // }
 
 const polyOne :[number, number][] = [
   [27.705, 85.325],
   [27.710, 85.330],
   [27.715, 85.320],
 ]
+
+const[allListings, setAllListings] = useState<Listing[]>([]);
+
+useEffect(()=>{
+     async function GetAllListing(){
+  try {
+   const response = await Axios.get("http://127.0.0.1:8000/api/listings/");
+  //  console.log(response.data);
+   setAllListings(response.data);
+  } catch(error){
+    const err = error as AxiosError;
+    console.log(err.response)
+  } 
+}
+GetAllListing();
+},[])
+
+console.log(allListings);
 
 
   return (
@@ -78,7 +105,7 @@ const polyOne :[number, number][] = [
         flexDirection={"column"}
         alignItems="flex-start"
       >
-        {myListings.map((listing: Listing) => {
+        {allListings.map((listing: Listing) => {
           return (
             <Card
               key={listing.id}
@@ -164,7 +191,7 @@ const polyOne :[number, number][] = [
           sx={{ position: "sticky", top: "72px", height: "calc(100vh - 64px)" }}
         >
           <MapContainer
-            center={[latitude, longitude]}
+            center={[27.705989268509068, 85.31711091327156]}
             zoom={14}
             scrollWheelZoom={true}
           >
@@ -175,7 +202,7 @@ const polyOne :[number, number][] = [
             <Polyline positions={polyOne} weight={10} color="green" />
             <Polygon positions={polygonOne} color="blue" fillColor="blue" fillOpacity={0.9} />
 
-            {myListings.map((listing: Listing) => {
+            {allListings.map((listing: Listing) => {
               const IconDisplay = () => {
                 if (listing.listing_type === "House") {
                   return houseIcon;
