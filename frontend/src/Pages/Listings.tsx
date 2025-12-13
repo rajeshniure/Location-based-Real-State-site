@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Axios from "axios";
-import {AxiosError} from "axios";
-
+import { AxiosError } from "axios";
 
 import {
   Box,
@@ -10,12 +9,19 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  CircularProgress,
   Grid,
   Typography,
 } from "@mui/material";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, Polygon } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+  Polygon,
+} from "react-leaflet";
 import { Icon } from "leaflet";
-
 
 import polygonOne from "../Components/shape";
 import houseIconPng from "../assets/Mapicons/house.png";
@@ -40,9 +46,7 @@ export interface Listing {
   rental_frequency?: "Day" | "Week" | "Month" | null;
 }
 
-
 function Listings() {
-
   //  fetch("http://127.0.0.1:8000/api/listings/")
   //  .then(response => response.json())
   //  .then(data => console.log(data));
@@ -72,30 +76,54 @@ function Listings() {
   //   setLongitude(85.31711091327156);
   // }
 
-const polyOne :[number, number][] = [
-  [27.705, 85.325],
-  [27.710, 85.330],
-  [27.715, 85.320],
-]
+  const polyOne: [number, number][] = [
+    [27.705, 85.325],
+    [27.71, 85.33],
+    [27.715, 85.32],
+  ];
 
-const[allListings, setAllListings] = useState<Listing[]>([]);
+  const [allListings, setAllListings] = useState<Listing[]>([]);
+  const [dataIsLoading, setDataIsLoading] = useState(true);
 
-useEffect(()=>{
-     async function GetAllListing(){
-  try {
-   const response = await Axios.get("http://127.0.0.1:8000/api/listings/");
-  //  console.log(response.data);
-   setAllListings(response.data);
-  } catch(error){
-    const err = error as AxiosError;
-    console.log(err.response)
-  } 
-}
-GetAllListing();
-},[])
+  useEffect(() => {
+    const source = Axios.CancelToken.source();
+    async function GetAllListing() {
+      try {
+        const response = await Axios.get(
+          "http://127.0.0.1:8000/api/listings/",
+          { cancelToken: source.token }
+        );
+        //  console.log(response.data);
+        setAllListings(response.data);
+        setDataIsLoading(false);
+      } catch (error) {
+        const err = error as AxiosError;
+        console.log(err.response);
+      }
+    }
+    GetAllListing();
+    return () => {
+      source.cancel();
+    };
+  }, []);
 
-console.log(allListings);
-
+  if (dataIsLoading === false) {
+    console.log(allListings[0].location);
+  }
+  if (dataIsLoading === true) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Grid container spacing={2}>
@@ -147,8 +175,8 @@ console.log(allListings);
                     borderRadius: "5px",
                   }}
                 >
-                  {listing.listing_type}:  
-                  Rs {listing.price
+                  {listing.listing_type}: Rs{" "}
+                  {listing.price
                     .toString()
                     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                 </Typography>
@@ -165,8 +193,8 @@ console.log(allListings);
                     borderRadius: "5px",
                   }}
                 >
-                  {listing.listing_type}: 
-                  Rs {listing.price
+                  {listing.listing_type}: Rs{" "}
+                  {listing.price
                     .toString()
                     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}{" "}
                   / {listing.rental_frequency}
@@ -200,7 +228,12 @@ console.log(allListings);
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <Polyline positions={polyOne} weight={10} color="green" />
-            <Polygon positions={polygonOne} color="blue" fillColor="blue" fillOpacity={0.9} />
+            <Polygon
+              positions={polygonOne}
+              color="blue"
+              fillColor="blue"
+              fillOpacity={0.9}
+            />
 
             {allListings.map((listing: Listing) => {
               const IconDisplay = () => {
