@@ -1,8 +1,8 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
-function Login() {
-  const navigate = useNavigate();
+function Register() {
+    const navigate = useNavigate();
   return (
     <>
     <Box sx={{
@@ -23,16 +23,22 @@ function Login() {
         }}
       >
         <Typography variant="h4" textAlign="center" sx={{ fontWeight: "600" }}>
-          Login
+          Create an account
         </Typography>
         <TextField id="username" label="Username" variant="outlined" />
+        <TextField id="email" label="Email" variant="outlined" />
         <TextField
           id="password"
           label="Password"
           variant="outlined"
           type="password"
         />
-
+        <TextField
+          id="password2"
+          label="Confirm Password"
+          variant="outlined"
+          type="password"
+        />
         <Button
           variant="contained"
           type="submit"
@@ -46,16 +52,16 @@ function Login() {
             "&:hover": { background: "#00c853" },
           }}
         >
-          Login
+          Sign Up
         </Button>
       </Box>
     </form>
     <Typography variant="body1" textAlign="center" sx={{ fontWeight: "600",pb:2 }}>
-          Don't have an account yet? <span onClick ={()=>navigate("/register")}  style={{ color: "#00e676", cursor: "pointer" }}>Sign Up </span> 
+          Already have an account? <span onClick ={()=>navigate("/login")} style={{ color: "#00e676", cursor: "pointer" }}>Sign In </span> 
         </Typography>
         </Box>
         </>
   );
 }
 
-export default Login;
+export default Register;

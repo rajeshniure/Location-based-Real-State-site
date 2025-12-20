@@ -5,6 +5,7 @@ import Agencies from "./Pages/Agencies";
 import Login from "./Pages/Login";
 import Navbar from "./Components/Navbar";
 import Testing from "./Components/Testing";
+import Register from "./Components/Register";
 
 const AppRoutes = () => {
   return (
@@ -15,6 +16,7 @@ const AppRoutes = () => {
         <Route path="/listings" element={<Listings />} />
         <Route path="/agencies" element={<Agencies />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/testing" element={<Testing />} />
       </Routes>
     </BrowserRouter>
