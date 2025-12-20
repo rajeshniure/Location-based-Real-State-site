@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/listings/',listings_api_views.ListingList.as_view()),
     
-    path('api-auth-djoser', include('djoser.urls')),
-    path('api-auth-djoser', include('djoser.urls.authtoken')),
+    path('api-auth-djoser/', include('djoser.urls')),
+    path('api-auth-djoser/', include('djoser.urls.authtoken')),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
