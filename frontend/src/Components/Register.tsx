@@ -1,41 +1,81 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Axios from "axios";
+import { useImmerReducer } from "use-immer";
 import { AxiosError } from "axios";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+type State = {
+  usernameValue: string;
+  emailValue: string;
+  passwordValue: string;
+  password2Value: string;
+  sendRequest: number;
+};
+
+type Action =
+  | { type: "catchUsernameChange"; usernameChosen: string }
+  | { type: "catchEmailChange"; emailChosen: string }
+  | { type: "catchPasswordChange"; passwordChosen: string }
+  | { type: "catchPassword2Change"; password2Chosen: string }
+  | { type: "changeSendRequest" };
+
 function Register() {
   const navigate = useNavigate();
 
-  const [sendRequest, setSendRequest] = useState<boolean>(false);
-  const [usernameValue, setUsernameValue] = useState<string>("");
-  const [emailValue, setEmailValue] = useState<string>("");
-  const [passwordValue, setPasswordValue] = useState<string>("");
-  const [password2Value, setPassword2Value] = useState<string>("");
+  const initialState: State = {
+    usernameValue: "",
+    emailValue: "",
+    passwordValue: "",
+    password2Value: "",
+    sendRequest: 0,
+  };
 
+  function ReducerFunction(draft: State, action: Action) {
+    switch (action.type) {
+      case "catchUsernameChange":
+        draft.usernameValue = action.usernameChosen;
+        break;
+      case "catchEmailChange":
+        draft.emailValue = action.emailChosen;
+        break;
+      case "catchPasswordChange":
+        draft.passwordValue = action.passwordChosen;
+        break;
+      case "catchPassword2Change":
+        draft.password2Value = action.password2Chosen;
+        break;
+      case "changeSendRequest":
+        draft.sendRequest = draft.sendRequest + 1;
+        break;
+    }
+  }
+
+  const [state, dispatch] = useImmerReducer(ReducerFunction, initialState);
 
   function FormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     console.log("form is submitted! ");
-    setSendRequest(!sendRequest);
+    dispatch({ type: "changeSendRequest" });
   }
 
   useEffect(() => {
-    if (sendRequest) {
+    if (state.sendRequest) {
       const source = Axios.CancelToken.source();
       async function SignUp() {
         try {
           const response = await Axios.post(
             "http://127.0.0.1:8000/api-auth-djoser/users/ ",
             {
-              username: usernameValue,
-              email: emailValue,
-              password: passwordValue,
-              re_password: password2Value,
+              username: state.usernameValue,
+              email: state.emailValue,
+              password: state.passwordValue,
+              re_password: state.password2Value,
             },
             { cancelToken: source.token }
           );
           console.log(response.data);
+          navigate('/')
         } catch (error) {
           const err = error as AxiosError;
           console.log(err.response);
@@ -46,7 +86,7 @@ function Register() {
         source.cancel();
       };
     }
-  }, [sendRequest]);
+  }, [state.sendRequest]);
 
   return (
     <>
@@ -79,31 +119,51 @@ function Register() {
               id="username"
               label="Username"
               variant="outlined"
-              value={usernameValue}
-              onChange={(e) => setUsernameValue(e.target.value)}
+              value={state.usernameValue}
+              onChange={(e) =>
+                dispatch({
+                  type: "catchUsernameChange",
+                  usernameChosen: e.target.value,
+                })
+              }
             />
             <TextField
               id="email"
               label="Email"
               variant="outlined"
-              value={emailValue}
-              onChange={(e) => setEmailValue(e.target.value)}
+              value={state.emailValue}
+              onChange={(e) =>
+                dispatch({
+                  type: "catchEmailChange",
+                  emailChosen: e.target.value,
+                })
+              }
             />
             <TextField
               id="password"
               label="Password"
               variant="outlined"
               type="password"
-              value={passwordValue}
-              onChange={(e) => setPasswordValue(e.target.value)}
+              value={state.passwordValue}
+              onChange={(e) =>
+                dispatch({
+                  type: "catchPasswordChange",
+                  passwordChosen: e.target.value,
+                })
+              }
             />
             <TextField
               id="password2"
               label="Confirm Password"
               variant="outlined"
               type="password"
-              value={password2Value}
-              onChange={(e) => setPassword2Value(e.target.value)}
+              value={state.password2Value}
+              onChange={(e) =>
+                dispatch({
+                  type: "catchPassword2Change",
+                  password2Chosen: e.target.value,
+                })
+              }
             />
             <Button
               variant="contained"
