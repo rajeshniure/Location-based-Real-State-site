@@ -11,7 +11,7 @@ type State = {
   passwordValue: string;
   password2Value: string;
   sendRequest: number;
-};
+}; 
 
 type Action =
   | { type: "catchUsernameChange"; usernameChosen: string }

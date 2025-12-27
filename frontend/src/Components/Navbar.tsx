@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   AppBar,
   Toolbar,
@@ -7,18 +7,34 @@ import {
   Typography,
   IconButton,
   Drawer,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
+import StateContext from "../Contexts/StateContext";
+
 import { useNavigate } from "react-router";
 
 const Navbar: React.FC = () => {
+
   const [open, setOpen] = useState<boolean>(false);
 
   const menuItems: string[] = ["Listings", "Agencies"];
 
   const navigate = useNavigate();
+
+  const GlobalState = useContext(StateContext);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <>
@@ -83,20 +99,50 @@ const Navbar: React.FC = () => {
             >
               Add Property
             </Button>
-
-            <Button
-              onClick={() => navigate("/login")}
-              sx={{
-                background: "#f5f5f5",
-                color: "#000",
-                px: 3,
-                borderRadius: "25px",
-                textTransform: "none",
-                "&:hover": { background: "#e0e0e0" },
+            {GlobalState.userIsLogged ? (
+              <Button
+              onClick={handleClick}
+                // onClick={() => navigate("/login")}
+                sx={{
+                  background: "#f5f5f5",
+                  color: "#000",
+                  px: 3,
+                  borderRadius: "25px",
+                  textTransform: "none",
+                  "&:hover": { background: "#e0e0e0" },
+                }}
+              >
+                {GlobalState.userUsername}
+              </Button>
+            ) : (
+              <Button
+                onClick={() => navigate("/login")}
+                sx={{
+                  background: "#f5f5f5",
+                  color: "#000",
+                  px: 3,
+                  borderRadius: "25px",
+                  textTransform: "none",
+                  "&:hover": { background: "#e0e0e0" },
+                }}
+              >
+                Login
+              </Button>
+            )}
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              slotProps={{
+                list: {
+                  "aria-labelledby": "basic-button",
+                },
               }}
             >
-              Login
-            </Button>
+              <MenuItem sx={{color:"black", backgroundColor:"green", width:"15rem", fontWeight:"bolder", borderRadius:"15px"}} onClick={handleClose}>Profile</MenuItem>
+              <MenuItem sx={{color:"black", backgroundColor:"red", width:"15rem", fontWeight:"bolder", borderRadius:"15px"}} onClick={handleClose}>Logout</MenuItem>
+            </Menu>
           </Box>
 
           {/* Mobile Hamburger */}
