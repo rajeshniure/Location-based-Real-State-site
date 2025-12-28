@@ -33,7 +33,11 @@ export type Action =
       usernameInfo: string;
       emailInfo: string;
       IdInfo: string;
+    }
+  | {
+      type: "logout";
     };
+
 
 
 const AppRoutes = () => {
@@ -52,12 +56,17 @@ const AppRoutes = () => {
         case "catchToken":
           draft.userToken = action.tokenValue;
           break;
+
         case "userSignsIn":
-        draft.userUsername = action.usernameInfo;
-        draft.userEmail = action.emailInfo;
-        draft.userId = action.IdInfo;
-        draft.userIsLogged = true;
-        break;
+          draft.userUsername = action.usernameInfo;
+          draft.userEmail = action.emailInfo;
+          draft.userId = action.IdInfo;
+          draft.userIsLogged = true;
+          break;
+        
+        case "logout":
+          draft.userIsLogged = false;
+          break;
 
   
       }
@@ -73,6 +82,9 @@ const AppRoutes = () => {
         localStorage.setItem("theUserToken", state.userToken);
       } else {
         localStorage.removeItem("theUserUsername");
+        localStorage.removeItem("theUserEmail");
+        localStorage.removeItem("theUserId");
+        localStorage.removeItem("theUserToken");
       }
     }, [state.userIsLogged]);
 

@@ -1,4 +1,6 @@
 import { useState, useContext } from "react";
+import Axios from "axios";
+import { AxiosError } from "axios";
 import {
   AppBar,
   Toolbar,
@@ -14,11 +16,11 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
 import StateContext from "../Contexts/StateContext";
+import DispatchContext from "../Contexts/DispatchContext";
 
 import { useNavigate } from "react-router";
 
 const Navbar: React.FC = () => {
-
   const [open, setOpen] = useState<boolean>(false);
 
   const menuItems: string[] = ["Listings", "Agencies"];
@@ -26,15 +28,44 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   const GlobalState = useContext(StateContext);
+  const GlobalDispatch = useContext(DispatchContext);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const menuOpen = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  async function handleLogout() {
+    setAnchorEl(null);
+    const confirmLogout = window.confirm("Are you sure you want to leave");
+    if(confirmLogout && GlobalState){
+        try {
+      const response = await Axios.post(
+        "http://127.0.0.1:8000/api-auth-djoser/token/logout/",
+        GlobalState.userToken,
+        {
+          headers: {
+            Authorization: `Token ${GlobalState.userToken}`,
+          },
+        }
+      );
+      console.log(response);
+      if (GlobalDispatch) {
+        GlobalDispatch({
+          type: "logout",
+        });
+      }
+      navigate("/");
+    } catch (error) {
+      const err = error as AxiosError;
+      console.log(err.response);
+    }
+    }
+  }
 
   return (
     <>
@@ -99,9 +130,9 @@ const Navbar: React.FC = () => {
             >
               Add Property
             </Button>
-            {GlobalState.userIsLogged ? (
+            {GlobalState && GlobalState.userIsLogged ? (
               <Button
-              onClick={handleClick}
+                onClick={handleClick}
                 // onClick={() => navigate("/login")}
                 sx={{
                   background: "#f5f5f5",
@@ -132,7 +163,7 @@ const Navbar: React.FC = () => {
             <Menu
               id="basic-menu"
               anchorEl={anchorEl}
-              open={open}
+              open={menuOpen}
               onClose={handleClose}
               slotProps={{
                 list: {
@@ -140,8 +171,33 @@ const Navbar: React.FC = () => {
                 },
               }}
             >
-              <MenuItem sx={{color:"black", backgroundColor:"green", width:"15rem", fontWeight:"bolder", borderRadius:"15px"}} onClick={handleClose}>Profile</MenuItem>
-              <MenuItem sx={{color:"black", backgroundColor:"red", width:"15rem", fontWeight:"bolder", borderRadius:"15px"}} onClick={handleClose}>Logout</MenuItem>
+              <MenuItem
+                sx={{
+                  color: "black",
+                  backgroundColor: "#00e676",
+                  width: "6rem",
+                  fontWeight: "bolder",
+                  borderRadius: "10px",
+                  mx: "1rem",
+                  mb: "1rem",
+                }}
+                onClick={handleClose}
+              >
+                Profile
+              </MenuItem>
+              <MenuItem
+                sx={{
+                  color: "black",
+                  backgroundColor: "#EBAF70",
+                  width: "6rem",
+                  fontWeight: "bolder",
+                  borderRadius: "10px",
+                  mx: "1rem",
+                }}
+                onClick={handleLogout}
+              >
+                Logout
+              </MenuItem>
             </Menu>
           </Box>
 
