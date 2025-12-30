@@ -18,12 +18,11 @@ import {
   TileLayer,
   Marker,
   Popup,
-  Polyline,
-  Polygon,
+
 } from "react-leaflet";
 import { Icon } from "leaflet";
 
-import polygonOne from "../Components/shape";
+// import polygonOne from "../Components/shape";
 import houseIconPng from "../assets/Mapicons/house.png";
 import apertmentIconPng from "../assets/Mapicons/apartment.png";
 import officeIconPng from "../assets/Mapicons/office.png";
@@ -44,6 +43,8 @@ export interface Listing {
   price: number;
   property_status: "Rent" | "Sale";
   rental_frequency?: "Day" | "Week" | "Month" | null;
+  latitude: number;
+  longitude: number;
 }
 
 function Listings() {
@@ -76,11 +77,11 @@ function Listings() {
   //   setLongitude(85.31711091327156);
   // }
 
-  const polyOne: [number, number][] = [
-    [27.705, 85.325],
-    [27.71, 85.33],
-    [27.715, 85.32],
-  ];
+  // const polyOne: [number, number][] = [
+  //   [27.705, 85.325],
+  //   [27.71, 85.33],
+  //   [27.715, 85.32],
+  // ];
 
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [dataIsLoading, setDataIsLoading] = useState(true);
@@ -227,13 +228,6 @@ function Listings() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <Polyline positions={polyOne} weight={10} color="green" />
-            <Polygon
-              positions={polygonOne}
-              color="blue"
-              fillColor="blue"
-              fillOpacity={0.9}
-            />
 
             {allListings.map((listing: Listing) => {
               const IconDisplay = () => {
@@ -251,8 +245,8 @@ function Listings() {
                   key={listing.id}
                   icon={IconDisplay()}
                   position={[
-                    listing.location.coordinates[0],
-                    listing.location.coordinates[1],
+                    listing.latitude,
+                    listing.longitude,
                   ]}
                 >
                   <Popup>

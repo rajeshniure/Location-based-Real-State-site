@@ -119,6 +119,7 @@ const Navbar: React.FC = () => {
           {/* Desktop Buttons */}
           <Box sx={{ ml: "auto", display: { xs: "none", md: "flex" }, gap: 2 }}>
             <Button
+              onClick={() => navigate("/addproperty")}
               sx={{
                 background: "#00e676",
                 color: "#000",

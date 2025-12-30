@@ -1,0 +1,392 @@
+// import { useEffect } from "react";
+// import Axios from "axios";
+import { useImmerReducer } from "use-immer";
+// import { AxiosError } from "axios";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  TextField,
+  Typography,
+} from "@mui/material";
+// import { useNavigate } from "react-router-dom";
+
+type State = {
+  titleValue: string;
+  listingTypeValue: string;
+  descriptionValue: string;
+  areaValue: string;
+  boroughValue: string;
+  latitudeValue: string;
+  longitudeValue: string;
+  propertyStatusValue: string;
+  priceValue: string;
+  rentalFrequencyValue: string;
+  roomsValue: string;
+  furnishedValue: boolean;
+  poolValue: boolean;
+  elevatorValue: boolean;
+  cctvValue: boolean;
+  parkingValue: boolean;
+  picture1value: string;
+  picture2value: string;
+  picture3value: string;
+  picture4value: string;
+  picture5value: string;
+};
+
+type Action =
+  | { type: "catchTitleChange"; titleChosen: string }
+  | { type: "catchListingTypeChange"; listingTypeChosen: string }
+  | { type: "catchDescriptionChange"; descriptionChosen: string }
+  | { type: "catchAreaChange"; areaChosen: string }
+  | { type: "catchBoroughChange"; boroughChosen: string }
+  | { type: "catchLatitudeChange"; latitudeChosen: string }
+  | { type: "catchLongitudeChange"; longitudeChosen: string }
+  | { type: "catchPropertyStatusChange"; propertyStatusChosen: string }
+  | { type: "catchPriceChange"; priceChosen: string }
+  | { type: "catchRentalFrequencyChange"; rentalFrequencyChosen: string }
+  | { type: "catchRoomsChange"; roomsChosen: string }
+  | { type: "catchFurnishedChange"; furnishedChosen: boolean }
+  | { type: "catchPoolChange"; poolChosen: boolean }
+  | { type: "catchElevatorChange"; elevatorChosen: boolean }
+  | { type: "catchCctvChange"; cctvChosen: boolean }
+  | { type: "catchParkingChange"; parkingChosen: boolean }
+  | { type: "catchPicture1Change"; picture1Chosen: string }
+  | { type: "catchPicture2Change"; picture2Chosen: string }
+  | { type: "catchPicture3Change"; picture3Chosen: string }
+  | { type: "catchPicture4Change"; picture4Chosen: string }
+  | { type: "catchPicture5Change"; picture5Chosen: string };
+
+function AddProperty() {
+  // const navigate = useNavigate();
+
+  const initialState: State = {
+    titleValue: "",
+    listingTypeValue: "",
+    descriptionValue: "",
+    areaValue: "",
+    boroughValue: "",
+    latitudeValue: "",
+    longitudeValue: "",
+    propertyStatusValue: "",
+    priceValue: "",
+    rentalFrequencyValue: "",
+    roomsValue: "",
+    furnishedValue: false,
+    poolValue: false,
+    elevatorValue: false,
+    cctvValue: false,
+    parkingValue: false,
+    picture1value: "",
+    picture2value: "",
+    picture3value: "",
+    picture4value: "",
+    picture5value: "",
+  };
+
+  function ReducerFunction(draft: State, action: Action) {
+    switch (action.type) {
+      case "catchTitleChange":
+        draft.titleValue = action.titleChosen;
+        break;
+      case "catchListingTypeChange":
+        draft.listingTypeValue = action.listingTypeChosen;
+        break;
+      case "catchDescriptionChange":
+        draft.descriptionValue = action.descriptionChosen;
+        break;
+      case "catchAreaChange":
+        draft.areaValue = action.areaChosen;
+        break;
+      case "catchBoroughChange":
+        draft.boroughValue = action.boroughChosen;
+        break;
+      case "catchLatitudeChange":
+        draft.latitudeValue = action.latitudeChosen;
+        break;
+      case "catchLongitudeChange":
+        draft.longitudeValue = action.longitudeChosen;
+        break;
+      case "catchPropertyStatusChange":
+        draft.propertyStatusValue = action.propertyStatusChosen;
+        break;
+      case "catchPriceChange":
+        draft.priceValue = action.priceChosen;
+        break;
+      case "catchRentalFrequencyChange":
+        draft.rentalFrequencyValue = action.rentalFrequencyChosen;
+        break;
+      case "catchRoomsChange":
+        draft.roomsValue = action.roomsChosen;
+        break;
+      case "catchFurnishedChange":
+        draft.furnishedValue = action.furnishedChosen;
+        break;
+      case "catchPoolChange":
+        draft.poolValue = action.poolChosen;
+        break;
+      case "catchElevatorChange":
+        draft.elevatorValue = action.elevatorChosen;
+        break;
+      case "catchCctvChange":
+        draft.cctvValue = action.cctvChosen;
+        break;
+      case "catchParkingChange":
+        draft.parkingValue = action.parkingChosen;
+        break;
+      case "catchPicture1Change":
+        draft.picture1value = action.picture1Chosen;
+        break;
+      case "catchPicture2Change":
+        draft.picture2value = action.picture2Chosen;
+        break;
+      case "catchPicture3Change":
+        draft.picture3value = action.picture3Chosen;
+        break;
+      case "catchPicture4Change":
+        draft.picture4value = action.picture4Chosen;
+        break;
+      case "catchPicture5Change":
+        draft.picture5value = action.picture5Chosen;
+        break;
+    }
+  }
+
+  const [state, dispatch] = useImmerReducer(ReducerFunction, initialState);
+
+  function FormSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    console.log("form is submitted! ");
+    // dispatch({ type: "changeSendRequest" });
+  }
+
+  return (
+    <Box
+      sx={{
+        width: "400px",
+        margin: "25px auto",
+        border: "3px solid #EBAF70",
+        borderRadius: "16px",
+      }}
+    >
+      <form action="" onSubmit={FormSubmit}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          gap={3}
+          sx={{
+            margin: "0px auto ",
+            padding: "20px",
+          }}
+        >
+          <Typography
+            variant="h4"
+            textAlign="center"
+            sx={{ fontWeight: "600" }}
+          >
+            Submit A Property
+          </Typography>
+          <TextField
+            id="title"
+            label="Title"
+            variant="standard"
+            value={state.titleValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchTitleChange",
+                titleChosen: e.target.value,
+              })
+            }
+          />
+          <TextField
+            id="listingType"
+            label="Listing Type"
+            variant="standard"
+            value={state.listingTypeValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchListingTypeChange",
+                listingTypeChosen: e.target.value,
+              })
+            }
+          />
+          <TextField
+            id="description"
+            label="Description"
+            variant="standard"
+            value={state.descriptionValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchDescriptionChange",
+                descriptionChosen: e.target.value,
+              })
+            }
+          />
+          <TextField
+            id="area"
+            label="Area"
+            variant="standard"
+            value={state.areaValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchAreaChange",
+                areaChosen: e.target.value,
+              })
+            }
+          />
+          <TextField
+            id="borough"
+            label="Borough"
+            variant="standard"
+            value={state.boroughValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchBoroughChange",
+                boroughChosen: e.target.value,
+              })
+            }
+          />
+
+          <TextField
+            id="propertyStatus"
+            label="Property Status"
+            variant="standard"
+            value={state.propertyStatusValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchPropertyStatusChange",
+                propertyStatusChosen: e.target.value,
+              })
+            }
+          />
+          <TextField
+            id="rentalFrequency"
+            label="Rental Frequency"
+            variant="standard"
+            value={state.rentalFrequencyValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchRentalFrequencyChange",
+                rentalFrequencyChosen: e.target.value,
+              })
+            }
+          />
+          <TextField
+            id="rooms"
+            label="Rooms"
+            variant="standard"
+            value={state.roomsValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchRoomsChange",
+                roomsChosen: e.target.value,
+              })
+            }
+          />
+          <TextField
+            id="price"
+            label="Price"
+            variant="standard"
+            value={state.priceValue}
+            onChange={(e) =>
+              dispatch({
+                type: "catchPriceChange",
+                priceChosen: e.target.value,
+              })
+            }
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.furnishedValue}
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchFurnishedChange",
+                    furnishedChosen: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Furnished"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.poolValue}
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchPoolChange",
+                    poolChosen: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Pool"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.elevatorValue}
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchElevatorChange",
+                    elevatorChosen: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Elevator"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.cctvValue}
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchCctvChange",
+                    cctvChosen: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Cctv"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={state.parkingValue}
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchParkingChange",
+                    parkingChosen: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Parking"
+          />
+
+          <Button
+            variant="contained"
+            type="submit"
+            sx={{
+              width: "50%",
+              mx: "auto",
+              background: "#00e676",
+              color: "#000",
+              borderRadius: "16px",
+              textTransform: "none",
+              "&:hover": { background: "#00c853" },
+            }}
+          >
+            Submit
+          </Button>
+        </Box>
+      </form>
+    </Box>
+  );
+}
+
+export default AddProperty;
