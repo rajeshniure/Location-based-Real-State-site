@@ -61,3 +61,26 @@ function Testing() {
 }
 
 export default Testing;
+
+
+"thamel"
+  "lazimpat"
+  "naxal"
+  "baluwatar"
+  "maharajgunj"
+  "new-road"
+  "durbarmarg"
+  "putalisadak"
+  "tripureshwor"
+
+  "budhanilkantha"
+  "boudha"
+  "kapan"
+  "tokha"
+  "dhapasi"
+  "kalanki"
+  "syuchatar"
+  "kirtipur"
+  "balaju"
+  "samakhushi"
+  "chabahil"
