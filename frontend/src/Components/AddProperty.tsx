@@ -12,11 +12,16 @@ import {
 } from "@mui/material";
 // import { useNavigate } from "react-router-dom";
 
-import { MapContainer, Marker, Polygon, TileLayer, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  Polygon,
+  TileLayer,
+  useMap,
+} from "react-leaflet";
 import { Map as LeafletMap } from "leaflet";
 import { Marker as LeafletMarker } from "leaflet";
 import { type LeafletEventHandlerFnMap } from "leaflet";
-
 
 import { useEffect, useMemo, useRef } from "react";
 
@@ -39,16 +44,17 @@ type State = {
   elevatorValue: boolean;
   cctvValue: boolean;
   parkingValue: boolean;
-  picture1value: string;
-  picture2value: string;
-  picture3value: string;
-  picture4value: string;
-  picture5value: string;
+  picture1Value: File | null;
+  picture2Value: File | null;
+  picture3Value: File | null;
+  picture4Value: File | null;
+  picture5Value: File | null;
   mapInstance?: any;
   markerPosition: {
     lat: number;
     lng: number;
   };
+  uploadedPictures: File[];
 };
 
 type Action =
@@ -68,13 +74,18 @@ type Action =
   | { type: "catchElevatorChange"; elevatorChosen: boolean }
   | { type: "catchCctvChange"; cctvChosen: boolean }
   | { type: "catchParkingChange"; parkingChosen: boolean }
-  | { type: "catchPicture1Change"; picture1Chosen: string }
-  | { type: "catchPicture2Change"; picture2Chosen: string }
-  | { type: "catchPicture3Change"; picture3Chosen: string }
-  | { type: "catchPicture4Change"; picture4Chosen: string }
-  | { type: "catchPicture5Change"; picture5Chosen: string }
+  | { type: "catchPicture1Change"; picture1Chosen: File }
+  | { type: "catchPicture2Change"; picture2Chosen: File }
+  | { type: "catchPicture3Change"; picture3Chosen: File }
+  | { type: "catchPicture4Change"; picture4Chosen: File }
+  | { type: "catchPicture5Change"; picture5Chosen: File }
   | { type: "getMap"; mapData: LeafletMap }
-  | { type: "changeMarkerPosition"; changeLatitude: number ; changeLongitude: number };
+  | {
+      type: "changeMarkerPosition";
+      changeLatitude: number;
+      changeLongitude: number;
+    }
+  | { type: "catchUploadedPictures"; picturesChosen: File[] };
 
 type AreaOption = {
   value: string;
@@ -97,12 +108,8 @@ const areaOptions: AreaOption[] = [
 ];
 
 const innerKathmanduOptions: AreaOption[] = [
-  {
-    value: "",
-    label: "",
-  },
+  { value: "", label: "" },
   { value: "thamel", label: "Thamel" },
-
   { value: "lazimpat", label: "Lazimpat" },
   { value: "naxal", label: "Naxal" },
   { value: "baluwatar", label: "Baluwatar" },
@@ -114,10 +121,7 @@ const innerKathmanduOptions: AreaOption[] = [
 ];
 
 const outerKathmanduOptions: AreaOption[] = [
-  {
-    value: "",
-    label: "",
-  },
+  { value: "", label: "" },
   { value: "budhanilkantha", label: "Budhanilkantha" },
   { value: "boudha", label: "Boudha / Jorpati" },
   { value: "kapan", label: "Kapan" },
@@ -129,6 +133,26 @@ const outerKathmanduOptions: AreaOption[] = [
   { value: "balaju", label: "Balaju" },
   { value: "samakhushi", label: "Samakhushi" },
   { value: "chabahil", label: "Chabahil" },
+];
+
+const listingTypeOptions: AreaOption[] = [
+  { value: "", label: "" },
+  { value: "Apartment", label: "Apartment" },
+  { value: "House", label: "House" },
+  { value: "Office", label: "Office" },
+];
+
+const propertyTypeOptions: AreaOption[] = [
+  { value: "", label: "" },
+  { value: "Sale", label: "Sale" },
+  { value: "Rent", label: "Rent" },
+];
+
+const rentalFrequencyOptions: AreaOption[] = [
+  { value: "", label: "" },
+  { value: "Month", label: "Month" },
+  { value: "Week", label: "Week" },
+  { value: "Day", label: "Day" },
 ];
 
 const boroughCoordinates: { [key: string]: number[] } = {
@@ -177,15 +201,16 @@ function AddProperty() {
     elevatorValue: false,
     cctvValue: false,
     parkingValue: false,
-    picture1value: "",
-    picture2value: "",
-    picture3value: "",
-    picture4value: "",
-    picture5value: "",
-    markerPosition:{
-      lat:27.705989268509068, 
-      lng:85.31711091327156
-    }
+    picture1Value: null,
+    picture2Value: null,
+    picture3Value: null,
+    picture4Value: null,
+    picture5Value: null,
+    markerPosition: {
+      lat: 27.705989268509068,
+      lng: 85.31711091327156,
+    },
+    uploadedPictures: [],
   };
 
   function ReducerFunction(draft: State, action: Action) {
@@ -239,19 +264,19 @@ function AddProperty() {
         draft.parkingValue = action.parkingChosen;
         break;
       case "catchPicture1Change":
-        draft.picture1value = action.picture1Chosen;
+        draft.picture1Value = action.picture1Chosen;
         break;
       case "catchPicture2Change":
-        draft.picture2value = action.picture2Chosen;
+        draft.picture2Value = action.picture2Chosen;
         break;
       case "catchPicture3Change":
-        draft.picture3value = action.picture3Chosen;
+        draft.picture3Value = action.picture3Chosen;
         break;
       case "catchPicture4Change":
-        draft.picture4value = action.picture4Chosen;
+        draft.picture4Value = action.picture4Chosen;
         break;
       case "catchPicture5Change":
-        draft.picture5value = action.picture5Chosen;
+        draft.picture5Value = action.picture5Chosen;
         break;
       case "getMap":
         draft.mapInstance = action.mapData;
@@ -261,6 +286,9 @@ function AddProperty() {
         draft.markerPosition.lng = action.changeLongitude;
         draft.latitudeValue = "";
         draft.longitudeValue = "";
+        break;
+      case "catchUploadedPictures":
+        draft.uploadedPictures = action.picturesChosen;
         break;
     }
   }
@@ -291,7 +319,7 @@ function AddProperty() {
 
   //Borough Display Function
   function BoroughDisplay() {
-    const positions:any = boroughMap[state.boroughValue];
+    const positions: any = boroughMap[state.boroughValue];
 
     if (!positions) return null;
 
@@ -299,35 +327,95 @@ function AddProperty() {
   }
 
   // Draggable Marker Code
-const markerRef = useRef<LeafletMarker | null>(null);  
-const eventHandlers = useMemo<LeafletEventHandlerFnMap>(
+  const markerRef = useRef<LeafletMarker | null>(null);
+  const eventHandlers = useMemo<LeafletEventHandlerFnMap>(
     () => ({
       dragend() {
-        const marker:any = markerRef.current;
+        const marker: any = markerRef.current;
         dispatch({
-          type:'catchLatitudeChange',
-          latitudeChosen: marker.getLatLng().lat.toString()
-        })
+          type: "catchLatitudeChange",
+          latitudeChosen: marker.getLatLng().lat.toString(),
+        });
         dispatch({
-          type:'catchLongitudeChange',
-          longitudeChosen: marker.getLatLng().lng.toString()
-        })
-
+          type: "catchLongitudeChange",
+          longitudeChosen: marker.getLatLng().lng.toString(),
+        });
       },
     }),
     []
   );
 
-  useEffect(()=>{
-    console.log(state.latitudeValue, state.longitudeValue);
+  //catching picture files
+  useEffect(() => {
+    if (state.uploadedPictures[0]) {
+      dispatch({
+        type: "catchPicture1Change",
+        picture1Chosen: state.uploadedPictures[0],
+      });
+    }
+  }, [state.uploadedPictures[1]]);
 
-  },[state.latitudeValue, state.longitudeValue]);
+  useEffect(() => {
+    if (state.uploadedPictures[1]) {
+      dispatch({
+        type: "catchPicture2Change",
+        picture2Chosen: state.uploadedPictures[1],
+      });
+    }
+  }, [state.uploadedPictures[1]]);
 
+  useEffect(() => {
+    if (state.uploadedPictures[2]) {
+      dispatch({
+        type: "catchPicture3Change",
+        picture3Chosen: state.uploadedPictures[2],
+      });
+    }
+  }, [state.uploadedPictures[2]]);
+
+  useEffect(() => {
+    if (state.uploadedPictures[3]) {
+      dispatch({
+        type: "catchPicture4Change",
+        picture4Chosen: state.uploadedPictures[3],
+      });
+    }
+  }, [state.uploadedPictures[3]]);
+
+  useEffect(() => {
+    if (state.uploadedPictures[4]) {
+      dispatch({
+        type: "catchPicture5Change",
+        picture5Chosen: state.uploadedPictures[4],
+      });
+    }
+  }, [state.uploadedPictures[4]]);
 
   function FormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     console.log("form is submitted! ");
     // dispatch({ type: "changeSendRequest" });
+  }
+
+  function PriceDisplay() {
+    if (
+      state.propertyStatusValue === "Rent" &&
+      state.rentalFrequencyValue == "Day"
+    ) {
+      return "Price per Day*";
+    } else if (
+      state.propertyStatusValue === "Rent" &&
+      state.rentalFrequencyValue == "week"
+    ) {
+      return "Price per Week*";
+    } else if (
+      state.propertyStatusValue === "Rent" &&
+      state.rentalFrequencyValue == "Month"
+    ) {
+      return "Price per Month*";
+    } else {
+      return "Price*";
+    }
   }
 
   return (
@@ -358,7 +446,7 @@ const eventHandlers = useMemo<LeafletEventHandlerFnMap>(
           </Typography>
           <TextField
             id="title"
-            label="Title"
+            label="Title*"
             variant="standard"
             value={state.titleValue}
             onChange={(e) =>
@@ -368,22 +456,118 @@ const eventHandlers = useMemo<LeafletEventHandlerFnMap>(
               })
             }
           />
-          <TextField
-            id="listingType"
-            label="Listing Type"
-            variant="standard"
-            value={state.listingTypeValue}
-            onChange={(e) =>
-              dispatch({
-                type: "catchListingTypeChange",
-                listingTypeChosen: e.target.value,
-              })
-            }
-          />
+          <Grid container spacing={1} justifyContent={"space-between"}>
+            <Grid size={5}>
+              <TextField
+                fullWidth
+                id="listingType"
+                label="Listing Type*"
+                variant="standard"
+                value={state.listingTypeValue}
+                select
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchListingTypeChange",
+                    listingTypeChosen: e.target.value,
+                  })
+                }
+                slotProps={{
+                  select: {
+                    native: true,
+                  },
+                }}
+              >
+                {listingTypeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid size={5}>
+              <TextField
+                fullWidth
+                id="propertyStatus"
+                label="Property Status*"
+                variant="standard"
+                select
+                value={state.propertyStatusValue}
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchPropertyStatusChange",
+                    propertyStatusChosen: e.target.value,
+                  })
+                }
+                slotProps={{
+                  select: {
+                    native: true,
+                  },
+                }}
+              >
+                {propertyTypeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={1} justifyContent={"space-between"}>
+            <Grid size={5}>
+              <TextField
+                fullWidth
+                id="rentalFrequency"
+                label="Rental Frequency"
+                variant="standard"
+                disabled={state.propertyStatusValue === "Sale" ? true : false}
+                value={state.rentalFrequencyValue}
+                select
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchRentalFrequencyChange",
+                    rentalFrequencyChosen: e.target.value,
+                  })
+                }
+                slotProps={{
+                  select: {
+                    native: true,
+                  },
+                }}
+              >
+                {rentalFrequencyOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid size={5}>
+              <TextField
+                fullWidth
+                id="price"
+                type="number"
+                label={PriceDisplay()}
+                variant="standard"
+                value={state.priceValue}
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchPriceChange",
+                    priceChosen: e.target.value,
+                  })
+                }
+              />
+            </Grid>
+          </Grid>
+
           <TextField
             id="description"
             label="Description"
-            variant="standard"
+            variant="outlined"
+            multiline
+            rows={5}
             value={state.descriptionValue}
             onChange={(e) =>
               dispatch({
@@ -392,55 +576,29 @@ const eventHandlers = useMemo<LeafletEventHandlerFnMap>(
               })
             }
           />
-          <TextField
-            id="propertyStatus"
-            label="Property Status"
-            variant="standard"
-            value={state.propertyStatusValue}
-            onChange={(e) =>
-              dispatch({
-                type: "catchPropertyStatusChange",
-                propertyStatusChosen: e.target.value,
-              })
-            }
-          />
-          <TextField
-            id="rentalFrequency"
-            label="Rental Frequency"
-            variant="standard"
-            value={state.rentalFrequencyValue}
-            onChange={(e) =>
-              dispatch({
-                type: "catchRentalFrequencyChange",
-                rentalFrequencyChosen: e.target.value,
-              })
-            }
-          />
-          <TextField
-            id="rooms"
-            label="Rooms"
-            variant="standard"
-            value={state.roomsValue}
-            onChange={(e) =>
-              dispatch({
-                type: "catchRoomsChange",
-                roomsChosen: e.target.value,
-              })
-            }
-          />
-          <TextField
-            id="price"
-            label="Price"
-            variant="standard"
-            value={state.priceValue}
-            onChange={(e) =>
-              dispatch({
-                type: "catchPriceChange",
-                priceChosen: e.target.value,
-              })
-            }
-          />
-          <FormControlLabel
+          {state.listingTypeValue === "Office" ? (
+            ""
+          ) : (
+            <Grid size={3}>
+              <TextField
+              id="rooms"
+              label="Rooms"
+              type="number"
+              variant="standard"
+              value={state.roomsValue}
+              onChange={(e) =>
+                dispatch({
+                  type: "catchRoomsChange",
+                  roomsChosen: e.target.value,
+                })
+              }
+            />
+            </Grid>
+            
+          )}
+
+          <Grid container justifyContent={"space-between"}>
+            <FormControlLabel
             control={
               <Checkbox
                 checked={state.furnishedValue}
@@ -510,6 +668,8 @@ const eventHandlers = useMemo<LeafletEventHandlerFnMap>(
             }
             label="Parking"
           />
+          </Grid>
+
           <Grid container spacing={2} justifyContent={"space-between"}>
             <Grid size={5}>
               <TextField
@@ -602,13 +762,52 @@ const eventHandlers = useMemo<LeafletEventHandlerFnMap>(
 
           <Button
             variant="contained"
+            component="label"
+            sx={{
+              width: "50%",
+              mx: "auto",
+              background: "#00d3e6ff",
+              color: "#000",
+              borderRadius: "8px",
+              textTransform: "none",
+              "&:hover": { background: "#00c5c8ff" },
+            }}
+          >
+            Upload Pictures(max 5 )
+            <input
+              type="file"
+              multiple
+              hidden
+              accept="image/png, image/jpeg, image/gif"
+              onChange={(e) =>
+                dispatch({
+                  type: "catchUploadedPictures",
+                  picturesChosen: Array.from(e.target.files || []),
+                })
+              }
+            />
+          </Button>
+
+          <Grid container>
+            <ul>
+              {state.picture1Value ? <li>{state.picture1Value.name}</li> : ""}
+              {state.picture2Value ? <li>{state.picture2Value.name}</li> : ""}
+              {state.picture3Value ? <li>{state.picture3Value.name}</li> : ""}
+              {state.picture4Value ? <li>{state.picture4Value.name}</li> : ""}
+              {state.picture5Value ? <li>{state.picture5Value.name}</li> : ""}
+            </ul>
+          </Grid>
+
+          <Button
+            variant="contained"
             type="submit"
             sx={{
               width: "50%",
               mx: "auto",
+              // mt: "1rem",
               background: "#00e676",
               color: "#000",
-              borderRadius: "16px",
+              borderRadius: "8px",
               textTransform: "none",
               "&:hover": { background: "#00c853" },
             }}
@@ -617,13 +816,13 @@ const eventHandlers = useMemo<LeafletEventHandlerFnMap>(
           </Button>
         </Box>
       </form>
-      <Button
+      {/* <Button
         onClick={() =>
-          state.mapInstance.flyTo([27.705989268509068, 85.31711091327156, 35])
+          console.log("Uploaded Pictures: ", state.uploadedPictures)
         }
       >
         Test button
-      </Button>
+      </Button> */}
     </Box>
   );
 }
