@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Axios from "axios";
 import { AxiosError } from "axios";
+import { useImmerReducer } from "use-immer";
 
 import {
   Box,
@@ -12,15 +13,22 @@ import {
   CircularProgress,
   Grid,
   Typography,
+  IconButton,
+  CardActions,
 } from "@mui/material";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
+  useMap,
 
 } from "react-leaflet";
 import { Icon } from "leaflet";
+import { Map as LeafletMap } from "leaflet";
+
+
+import RoomIcon from '@mui/icons-material/Room';
 
 // import polygonOne from "../Components/shape";
 import houseIconPng from "../assets/Mapicons/house.png";
@@ -43,9 +51,17 @@ export interface Listing {
   price: number;
   property_status: "Rent" | "Sale";
   rental_frequency?: "Day" | "Week" | "Month" | null;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
+  seller_username: string;
 }
+
+type State = {
+  mapInstance?: any;
+}
+
+type Action =
+| { type: "getMap"; mapData: LeafletMap }
 
 function Listings() {
   //  fetch("http://127.0.0.1:8000/api/listings/")
@@ -67,6 +83,31 @@ function Listings() {
 
   // const [latitude, setLatitude] = useState(27.705989268509068);
   // const [longitude, setLongitude] = useState(85.31711091327156);
+
+  const initialState: State = {
+    mapInstance: null,
+    };
+   
+    function ReducerFunction(draft: State, action: Action) {
+      switch (action.type) {
+        
+        case "getMap":
+          draft.mapInstance = action.mapData;
+          break;
+
+      }
+    }
+  
+    const [state, dispatch] = useImmerReducer(ReducerFunction, initialState);
+  
+    function TheMapComponent() {
+      const map = useMap();
+      dispatch({
+        type: "getMap",
+        mapData: map,
+      });
+      return null;
+    }
 
   // function GoEast() {
   //   setLatitude(27.705556704779944);
@@ -145,11 +186,11 @@ function Listings() {
               }}
             >
               <CardHeader
-                // action={
-                //   <IconButton aria-label="settings">
-                //     <MoreVertIcon />
-                //   </IconButton>
-                // }
+                action={
+                  <IconButton aria-label="settings" onClick = {()=> state.mapInstance.flyTo([listing.latitude, listing.longitude],16)}>
+                    <RoomIcon />
+                  </IconButton>
+                }
                 title={listing.title}
               />
               <CardMedia
@@ -202,22 +243,21 @@ function Listings() {
                 </Typography>
               )}
 
-              {/* <CardActions disableSpacing>
+              <CardActions disableSpacing>
         <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
+          {listing.seller_username}
         </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
+        
+        
 
-      </CardActions> */}
+      </CardActions>
             </Card>
           );
         })}
       </Grid>
       <Grid size={8} sx={{ mt: "0.5rem" }}>
         <Box
-          sx={{ position: "sticky", top: "72px", height: "calc(100vh - 64px)" }}
+          sx={{ position: "sticky", top: "72px", height: "calc(100vh - 80px)" }}
         >
           <MapContainer
             center={[27.705989268509068, 85.31711091327156]}
@@ -228,6 +268,7 @@ function Listings() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            <TheMapComponent />
 
             {allListings.map((listing: Listing) => {
               const IconDisplay = () => {
@@ -239,6 +280,10 @@ function Listings() {
                   return officeIcon;
                 }
               };
+
+              if (listing.latitude === null || listing.longitude === null) {
+                return null;
+              }
 
               return (
                 <Marker
@@ -280,6 +325,7 @@ function Listings() {
       </Grid>
     </Grid>
   );
+  
 }
 
 export default Listings;

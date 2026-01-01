@@ -5,7 +5,7 @@ function HeroSection() {
   return (
     <Box
       sx={{
-        height: { xs: "auto", md: "92vh" },
+        minHeight: { xs: "auto", md: "Calc(100vh - 65px)" },
         backgroundColor: "#252932",
         display: "flex",
         flexDirection: { xs: "column-reverse", md: "row" },

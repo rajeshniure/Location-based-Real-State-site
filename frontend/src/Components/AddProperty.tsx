@@ -1,6 +1,6 @@
-// import Axios from "axios";
+import Axios from "axios";
 import { useImmerReducer } from "use-immer";
-// import { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import {
   Box,
   Button,
@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   MapContainer,
@@ -23,9 +23,15 @@ import { Map as LeafletMap } from "leaflet";
 import { Marker as LeafletMarker } from "leaflet";
 import { type LeafletEventHandlerFnMap } from "leaflet";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useContext } from "react";
 
 import { boroughMap } from "../assets/Boroughs/Index";
+
+import  StateContext  from "../Contexts/StateContext";
+
+type GlobalStateType = {
+  userId: string;
+};
 
 type State = {
   titleValue: string;
@@ -55,6 +61,8 @@ type State = {
     lng: number;
   };
   uploadedPictures: File[];
+  sendRequest: number;
+  
 };
 
 type Action =
@@ -74,18 +82,19 @@ type Action =
   | { type: "catchElevatorChange"; elevatorChosen: boolean }
   | { type: "catchCctvChange"; cctvChosen: boolean }
   | { type: "catchParkingChange"; parkingChosen: boolean }
-  | { type: "catchPicture1Change"; picture1Chosen: File }
-  | { type: "catchPicture2Change"; picture2Chosen: File }
-  | { type: "catchPicture3Change"; picture3Chosen: File }
-  | { type: "catchPicture4Change"; picture4Chosen: File }
-  | { type: "catchPicture5Change"; picture5Chosen: File }
+  | { type: "catchPicture1Change"; picture1Chosen: File | null }
+  | { type: "catchPicture2Change"; picture2Chosen: File | null }
+  | { type: "catchPicture3Change"; picture3Chosen: File | null }
+  | { type: "catchPicture4Change"; picture4Chosen: File | null }
+  | { type: "catchPicture5Change"; picture5Chosen: File | null }
   | { type: "getMap"; mapData: LeafletMap }
   | {
       type: "changeMarkerPosition";
       changeLatitude: number;
       changeLongitude: number;
     }
-  | { type: "catchUploadedPictures"; picturesChosen: File[] };
+  | { type: "catchUploadedPictures"; picturesChosen: File[] }
+  | { type: "changeSendRequest" };
 
 type AreaOption = {
   value: string;
@@ -182,7 +191,8 @@ const boroughCoordinates: { [key: string]: number[] } = {
 };
 
 function AddProperty() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
+  const GlobalState = useContext(StateContext) as GlobalStateType;
 
   const initialState: State = {
     titleValue: "",
@@ -206,13 +216,15 @@ function AddProperty() {
     picture3Value: null,
     picture4Value: null,
     picture5Value: null,
+    mapInstance: null,
     markerPosition: {
       lat: 27.705989268509068,
       lng: 85.31711091327156,
     },
     uploadedPictures: [],
+    sendRequest: 0,
   };
-
+ 
   function ReducerFunction(draft: State, action: Action) {
     switch (action.type) {
       case "catchTitleChange":
@@ -289,6 +301,9 @@ function AddProperty() {
         break;
       case "catchUploadedPictures":
         draft.uploadedPictures = action.picturesChosen;
+        break;
+      case "changeSendRequest":
+        draft.sendRequest = draft.sendRequest + 1;
         break;
     }
   }
@@ -394,8 +409,49 @@ function AddProperty() {
   function FormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     console.log("form is submitted! ");
-    // dispatch({ type: "changeSendRequest" });
+    dispatch({ type: "changeSendRequest" });
   }
+
+  useEffect(() =>{
+    if (state.sendRequest){
+      async function AddProperty(){
+        const formData = new FormData();
+        formData.append("title",state.titleValue);
+        formData.append("description",state.descriptionValue);
+        formData.append("area",state.areaValue);
+        formData.append("borough",state.boroughValue);
+        formData.append("listing_type",state.listingTypeValue);
+        formData.append("property_status",state.propertyStatusValue);
+        formData.append("price",state.priceValue);
+        formData.append("rental_frequency",state.rentalFrequencyValue);
+        formData.append("rooms",state.roomsValue);
+        formData.append("furnished",state.furnishedValue.toString());
+        formData.append("pool",state.poolValue.toString());
+        formData.append("elevator",state.elevatorValue.toString());
+        formData.append("cctv",state.cctvValue.toString());
+        formData.append("parking",state.parkingValue.toString());
+        formData.append("latitude",state.latitudeValue);
+        formData.append("longitude",state.longitudeValue);
+        if (state.picture1Value) formData.append("picture1", state.picture1Value);
+        if (state.picture2Value) formData.append("picture2", state.picture2Value);
+        if (state.picture3Value) formData.append("picture3", state.picture3Value);
+        if (state.picture4Value) formData.append("picture4", state.picture4Value);
+        if (state.picture5Value) formData.append("picture5", state.picture5Value);
+        formData.append("seller",GlobalState.userId );
+        
+        try{
+          const response = await Axios.post("http://127.0.0.1:8000/api/listings/create/",formData);
+          console.log(response.data);
+          navigate("/listings");
+        } catch (error) {
+          const err = error as AxiosError;
+          console.log(err.response);
+        }
+      }
+      AddProperty();
+    }
+
+  },[state.sendRequest])
 
   function PriceDisplay() {
     if (
