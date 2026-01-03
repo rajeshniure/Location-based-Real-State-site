@@ -27,10 +27,11 @@ import { useEffect, useMemo, useRef, useContext } from "react";
 
 import { boroughMap } from "../assets/Boroughs/Index";
 
-import  StateContext  from "../Contexts/StateContext";
+import StateContext from "../Contexts/StateContext";
 
 type GlobalStateType = {
   userId: string;
+  userIsLogged: boolean;
 };
 
 type State = {
@@ -62,7 +63,10 @@ type State = {
   };
   uploadedPictures: File[];
   sendRequest: number;
-  
+  userProfile: {
+    agencyName: string;
+    phoneNumber: string;
+  };
 };
 
 type Action =
@@ -94,7 +98,8 @@ type Action =
       changeLongitude: number;
     }
   | { type: "catchUploadedPictures"; picturesChosen: File[] }
-  | { type: "changeSendRequest" };
+  | { type: "changeSendRequest" }
+  | { type: "catchUserProfileInfo"; profileObject: any };
 
 type AreaOption = {
   value: string;
@@ -223,8 +228,12 @@ function AddProperty() {
     },
     uploadedPictures: [],
     sendRequest: 0,
+    userProfile: {
+      agencyName: "",
+      phoneNumber: "",
+    },
   };
- 
+
   function ReducerFunction(draft: State, action: Action) {
     switch (action.type) {
       case "catchTitleChange":
@@ -304,6 +313,10 @@ function AddProperty() {
         break;
       case "changeSendRequest":
         draft.sendRequest = draft.sendRequest + 1;
+        break;
+      case "catchUserProfileInfo":
+        draft.userProfile.agencyName = action.profileObject.agency_name;
+        draft.userProfile.phoneNumber = action.profileObject.phone_number;
         break;
     }
   }
@@ -406,41 +419,68 @@ function AddProperty() {
     }
   }, [state.uploadedPictures[4]]);
 
+  useEffect(() => {
+    async function GetProfileInfo() {
+      try {
+        const response = await Axios.get(
+          `http://127.0.0.1:8000/api/profiles/${GlobalState.userId}/`
+        );
+        console.log(response.data);
+        dispatch({
+          type: "catchUserProfileInfo",
+          profileObject: response.data,
+        });
+      } catch (error) {
+        const err = error as AxiosError;
+        console.log(err.response);
+      }
+    }
+    GetProfileInfo();
+  }, []);
+
   function FormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     console.log("form is submitted! ");
     dispatch({ type: "changeSendRequest" });
   }
 
-  useEffect(() =>{
-    if (state.sendRequest){
-      async function AddProperty(){
+  useEffect(() => {
+    if (state.sendRequest) {
+      async function AddProperty() {
         const formData = new FormData();
-        formData.append("title",state.titleValue);
-        formData.append("description",state.descriptionValue);
-        formData.append("area",state.areaValue);
-        formData.append("borough",state.boroughValue);
-        formData.append("listing_type",state.listingTypeValue);
-        formData.append("property_status",state.propertyStatusValue);
-        formData.append("price",state.priceValue);
-        formData.append("rental_frequency",state.rentalFrequencyValue);
-        formData.append("rooms",state.roomsValue);
-        formData.append("furnished",state.furnishedValue.toString());
-        formData.append("pool",state.poolValue.toString());
-        formData.append("elevator",state.elevatorValue.toString());
-        formData.append("cctv",state.cctvValue.toString());
-        formData.append("parking",state.parkingValue.toString());
-        formData.append("latitude",state.latitudeValue);
-        formData.append("longitude",state.longitudeValue);
-        if (state.picture1Value) formData.append("picture1", state.picture1Value);
-        if (state.picture2Value) formData.append("picture2", state.picture2Value);
-        if (state.picture3Value) formData.append("picture3", state.picture3Value);
-        if (state.picture4Value) formData.append("picture4", state.picture4Value);
-        if (state.picture5Value) formData.append("picture5", state.picture5Value);
-        formData.append("seller",GlobalState.userId );
-        
-        try{
-          const response = await Axios.post("http://127.0.0.1:8000/api/listings/create/",formData);
+        formData.append("title", state.titleValue);
+        formData.append("description", state.descriptionValue);
+        formData.append("area", state.areaValue);
+        formData.append("borough", state.boroughValue);
+        formData.append("listing_type", state.listingTypeValue);
+        formData.append("property_status", state.propertyStatusValue);
+        formData.append("price", state.priceValue);
+        formData.append("rental_frequency", state.rentalFrequencyValue);
+        formData.append("rooms", state.roomsValue);
+        formData.append("furnished", state.furnishedValue.toString());
+        formData.append("pool", state.poolValue.toString());
+        formData.append("elevator", state.elevatorValue.toString());
+        formData.append("cctv", state.cctvValue.toString());
+        formData.append("parking", state.parkingValue.toString());
+        formData.append("latitude", state.latitudeValue);
+        formData.append("longitude", state.longitudeValue);
+        if (state.picture1Value)
+          formData.append("picture1", state.picture1Value);
+        if (state.picture2Value)
+          formData.append("picture2", state.picture2Value);
+        if (state.picture3Value)
+          formData.append("picture3", state.picture3Value);
+        if (state.picture4Value)
+          formData.append("picture4", state.picture4Value);
+        if (state.picture5Value)
+          formData.append("picture5", state.picture5Value);
+        formData.append("seller", GlobalState.userId);
+
+        try {
+          const response = await Axios.post(
+            "http://127.0.0.1:8000/api/listings/create/",
+            formData
+          );
           console.log(response.data);
           navigate("/listings");
         } catch (error) {
@@ -450,8 +490,7 @@ function AddProperty() {
       }
       AddProperty();
     }
-
-  },[state.sendRequest])
+  }, [state.sendRequest]);
 
   function PriceDisplay() {
     if (
@@ -471,6 +510,81 @@ function AddProperty() {
       return "Price per Month*";
     } else {
       return "Price*";
+    }
+  }
+
+  function SubmitButtonDisplay() {
+    if (
+      GlobalState.userIsLogged &&
+      state.userProfile.agencyName !== null &&
+      state.userProfile.agencyName !== "" &&
+      state.userProfile.phoneNumber !== null &&
+      state.userProfile.phoneNumber !== ""
+    ) {
+      return (
+        <Button
+          variant="contained"
+          type="submit"
+          sx={{
+            width: "50%",
+            mx: "auto",
+            // mt: "1rem",
+            background: "#00e676",
+            color: "#000",
+            borderRadius: "8px",
+            textTransform: "none",
+            "&:hover": { background: "#00c853" },
+          }}
+        >
+          Submit
+        </Button>
+      );
+    } else if (
+      GlobalState.userIsLogged &&
+      (state.userProfile.agencyName === null ||
+        state.userProfile.agencyName === "") &&
+      (state.userProfile.phoneNumber === null ||
+        state.userProfile.phoneNumber === "")
+    ) {
+      return(
+         <Button
+            variant="outlined"
+            fullWidth
+            onClick={() => navigate("/profile")}
+            sx={{
+              width: "50%",
+              mx: "auto",
+              // mt: "1rem",
+              background: "#00e676",
+              color: "#000",
+              borderRadius: "8px",
+              textTransform: "none",
+              "&:hover": { background: "#00c853" },
+            }}
+          >
+            Complete your profile to add a property
+          </Button>
+      )
+    } else if(!GlobalState.userIsLogged){
+      return(
+         <Button
+            variant="outlined"
+            fullWidth
+            onClick={() => navigate("/login")}
+            sx={{
+              width: "50%",
+              mx: "auto",
+              // mt: "1rem",
+              background: "#00e676",
+              color: "#000",
+              borderRadius: "8px",
+              textTransform: "none",
+              "&:hover": { background: "#00c853" },
+            }}
+          >
+            Sign in to add a property
+          </Button>
+      )
     }
   }
 
@@ -637,93 +751,92 @@ function AddProperty() {
           ) : (
             <Grid size={3}>
               <TextField
-              id="rooms"
-              label="Rooms"
-              type="number"
-              variant="standard"
-              value={state.roomsValue}
-              onChange={(e) =>
-                dispatch({
-                  type: "catchRoomsChange",
-                  roomsChosen: e.target.value,
-                })
-              }
-            />
+                id="rooms"
+                label="Rooms"
+                type="number"
+                variant="standard"
+                value={state.roomsValue}
+                onChange={(e) =>
+                  dispatch({
+                    type: "catchRoomsChange",
+                    roomsChosen: e.target.value,
+                  })
+                }
+              />
             </Grid>
-            
           )}
 
           <Grid container justifyContent={"space-between"}>
             <FormControlLabel
-            control={
-              <Checkbox
-                checked={state.furnishedValue}
-                onChange={(e) =>
-                  dispatch({
-                    type: "catchFurnishedChange",
-                    furnishedChosen: e.target.checked,
-                  })
-                }
-              />
-            }
-            label="Furnished"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={state.poolValue}
-                onChange={(e) =>
-                  dispatch({
-                    type: "catchPoolChange",
-                    poolChosen: e.target.checked,
-                  })
-                }
-              />
-            }
-            label="Pool"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={state.elevatorValue}
-                onChange={(e) =>
-                  dispatch({
-                    type: "catchElevatorChange",
-                    elevatorChosen: e.target.checked,
-                  })
-                }
-              />
-            }
-            label="Elevator"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={state.cctvValue}
-                onChange={(e) =>
-                  dispatch({
-                    type: "catchCctvChange",
-                    cctvChosen: e.target.checked,
-                  })
-                }
-              />
-            }
-            label="Cctv"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={state.parkingValue}
-                onChange={(e) =>
-                  dispatch({
-                    type: "catchParkingChange",
-                    parkingChosen: e.target.checked,
-                  })
-                }
-              />
-            }
-            label="Parking"
-          />
+              control={
+                <Checkbox
+                  checked={state.furnishedValue}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "catchFurnishedChange",
+                      furnishedChosen: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Furnished"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.poolValue}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "catchPoolChange",
+                      poolChosen: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Pool"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.elevatorValue}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "catchElevatorChange",
+                      elevatorChosen: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Elevator"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.cctvValue}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "catchCctvChange",
+                      cctvChosen: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Cctv"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.parkingValue}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "catchParkingChange",
+                      parkingChosen: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Parking"
+            />
           </Grid>
 
           <Grid container spacing={2} justifyContent={"space-between"}>
@@ -854,22 +967,7 @@ function AddProperty() {
             </ul>
           </Grid>
 
-          <Button
-            variant="contained"
-            type="submit"
-            sx={{
-              width: "50%",
-              mx: "auto",
-              // mt: "1rem",
-              background: "#00e676",
-              color: "#000",
-              borderRadius: "8px",
-              textTransform: "none",
-              "&:hover": { background: "#00c853" },
-            }}
-          >
-            Submit
-          </Button>
+          {SubmitButtonDisplay()}
         </Box>
       </form>
       {/* <Button

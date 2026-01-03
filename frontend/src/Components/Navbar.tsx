@@ -107,6 +107,7 @@ const Navbar: React.FC = () => {
                 key={item}
                 sx={{
                   color: "white",
+                  fontSize: "16px",
                   textTransform: "none",
                   "&:hover": { color: "#EBAF70" },
                 }}
