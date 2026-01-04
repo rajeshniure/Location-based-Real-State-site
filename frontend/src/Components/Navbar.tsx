@@ -35,11 +35,17 @@ const Navbar: React.FC = () => {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const HandleClose = () => {
     setAnchorEl(null);
   };
 
-  async function handleLogout() {
+  function HandleProfile(){
+    setAnchorEl(null);
+    navigate("/profile")
+  }
+
+
+  async function HandleLogout() {
     setAnchorEl(null);
     const confirmLogout = window.confirm("Are you sure you want to leave");
     if(confirmLogout && GlobalState){
@@ -166,7 +172,7 @@ const Navbar: React.FC = () => {
               id="basic-menu"
               anchorEl={anchorEl}
               open={menuOpen}
-              onClose={handleClose}
+              onClose={HandleClose}
               slotProps={{
                 list: {
                   "aria-labelledby": "basic-button",
@@ -183,7 +189,7 @@ const Navbar: React.FC = () => {
                   mx: "1rem",
                   mb: "1rem",
                 }}
-                onClick={handleClose}
+                onClick={HandleProfile}
               >
                 Profile
               </MenuItem>
@@ -196,7 +202,7 @@ const Navbar: React.FC = () => {
                   borderRadius: "10px",
                   mx: "1rem",
                 }}
-                onClick={handleLogout}
+                onClick={HandleLogout}
               >
                 Logout
               </MenuItem>

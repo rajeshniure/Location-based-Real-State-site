@@ -1,6 +1,8 @@
+import { useEffect, useMemo, useRef, useContext } from "react";
 import Axios from "axios";
 import { useImmerReducer } from "use-immer";
 import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -10,7 +12,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 
 import {
   MapContainer,
@@ -23,7 +24,6 @@ import { Map as LeafletMap } from "leaflet";
 import { Marker as LeafletMarker } from "leaflet";
 import { type LeafletEventHandlerFnMap } from "leaflet";
 
-import { useEffect, useMemo, useRef, useContext } from "react";
 
 import { boroughMap } from "../assets/Boroughs/Index";
 
@@ -419,6 +419,7 @@ function AddProperty() {
     }
   }, [state.uploadedPictures[4]]);
 
+//request to get profile info
   useEffect(() => {
     async function GetProfileInfo() {
       try {

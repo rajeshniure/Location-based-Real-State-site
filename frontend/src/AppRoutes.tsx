@@ -8,6 +8,7 @@ import Navbar from "./Components/Navbar";
 import Testing from "./Components/Testing";
 import Register from "./Components/Register";
 import AddProperty from "./Components/AddProperty";
+import Profile from "./Components/Profile";
 
 
 import DispatchContext from "./Contexts/DispatchContext";
@@ -103,6 +104,7 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/addproperty" element={<AddProperty />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/testing" element={<Testing />} />
       </Routes>
     </BrowserRouter>
