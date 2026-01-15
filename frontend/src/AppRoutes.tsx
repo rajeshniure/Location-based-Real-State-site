@@ -2,13 +2,15 @@ import { useImmerReducer } from "use-immer";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Home from "./Pages/Home";
 import Listings from "./Pages/Listings";
-import Agencies from "./Pages/Agencies";
+import Agencies from "./Components/Agencies";
 import Login from "./Pages/Login";
 import Navbar from "./Components/Navbar";
 import Testing from "./Components/Testing";
 import Register from "./Components/Register";
 import AddProperty from "./Components/AddProperty";
 import Profile from "./Components/Profile";
+import AgencyDetail from "./Components/AgencyDetail";
+
 
 
 import DispatchContext from "./Contexts/DispatchContext";
@@ -101,6 +103,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/listings" element={<Listings />} />
         <Route path="/agencies" element={<Agencies />} />
+        <Route path="/agencies/:id" element={<AgencyDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/addproperty" element={<AddProperty />} />
