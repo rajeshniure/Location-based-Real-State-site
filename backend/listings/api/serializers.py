@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from listings.models import Listing, Poi
+from listings.models import Listing,Poi
 from django.contrib.gis.measure import D
 from django.contrib.gis.geos import Point
 

@@ -3,7 +3,6 @@ import Axios from "axios";
 import { useImmerReducer } from "use-immer";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-// import StateContext from "../Contexts/StateContext";
 import defaultProfilePicture from "../assets/defaultProfilePicture.jpg";
 
 import {
@@ -14,11 +13,9 @@ import {
   CardMedia,
   CircularProgress,
   Button,
-  //   Checkbox,
-  //   FormControlLabel,
-  Grid,
-  // TextField,
   Typography,
+  Container,
+  Chip,
 } from "@mui/material";
 
 type State = {
@@ -29,17 +26,11 @@ type State = {
 type Action =
   | { type: "catchAgencies"; agenciesArray: any[] }
   | { type: "loadingDone" };
-
-// type GlobalStateType = {
-//   userId: string;
-//   userIsLogged: boolean;
-//   userUsername: string;
-// };
+;
 
 function Agencies() {
 
   const navigate = useNavigate();
-  // const GlobalState = useContext(StateContext) as GlobalStateType;
 
   const initialState: State = {
     dataIsLoading: true,
@@ -86,68 +77,223 @@ function Agencies() {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
+          backgroundColor: "#252932",
         }}
       >
-        <CircularProgress />
+        <Box sx={{ textAlign: "center" }}>
+          <CircularProgress 
+            size={60} 
+            sx={{ 
+              color: "#EBAF70",
+              mb: 2
+            }} 
+          />
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              color: "white",
+              fontWeight: 500
+            }}
+          >
+            Loading Agencies...
+          </Typography>
+        </Box>
       </Box>
     );
   }
 
   return (
-    <Grid container justifyContent="flex-start" spacing={2} sx={{ p: "10px" }}>
-      {state.agenciesList.map((agency) => {
-        function propertiesDisplay() {
-          if (agency.seller_listings.length === 0) {
-            return( 
-            <Button disabled size="small">
-              No Properties
-            </Button>
-            );
-         
-          }
-          else if (agency.seller_listings.length === 1){
-            return( 
-            <Button size="small" onClick={()=>navigate(`/agencies/${agency.seller}`)}>
-              One property listed
-            </Button>
-          );
-        }
-        else{
-          return( 
-            <Button size="small" onClick={()=>navigate(`/agencies/${agency.seller}`)}>
-              {agency.seller_listings.length} properties listed
-            </Button>
-          );
-        }
-        }
-        
-        if (agency.agency_name && agency.phone_number)
-          return (
-            <Grid key={agency.id} sx={{ mt: "1rem", maxWidth: "20rem" }}>
-              <Card>
-                <CardMedia
-                  sx={{ height: 140 }}
-                  image={
-                    agency.profile_picture
-                      ? agency.profile_picture
-                      : defaultProfilePicture
-                  }
-                  title="Profile Picture"
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
-                    {agency.agency_name}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {agency.bio.substring(0, 100)}...
-                  </Typography>
-                </CardContent>
-                <CardActions>{propertiesDisplay()}</CardActions>
-              </Card>
-            </Grid>
-          );
-      })}
-    </Grid>
+    <Box
+      sx={{
+        minHeight: "91.2vh",
+        backgroundColor: "#252932",
+        py: 2,
+      }}
+    >
+      <Container maxWidth="xl">
+        <Box sx={{ mb: 3, textAlign: "center" }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              color: "#EBAF70",
+              mb: 1,
+              fontSize: { xs: "2rem", md: "2.5rem" },
+            }}
+          >
+            Real Estate Agencies
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "white",
+              fontSize: "1rem",
+              opacity: 0.8,
+            }}
+          >
+            Discover trusted agencies and their properties
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, 1fr)",
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
+            },
+            gap: 4,
+            justifyContent: "center",
+          }}
+        >
+          {state.agenciesList.map((agency) => {
+            function propertiesDisplay() {
+              if (agency.seller_listings.length === 0) {
+                return (
+                  <Chip
+                    label="No Properties"
+                    disabled
+                    size="small"
+                    sx={{
+                      opacity: 0.6,
+                      fontSize: "0.75rem",
+                    }}
+                  />
+                );
+              } else if (agency.seller_listings.length === 1) {
+                return (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => navigate(`/agencies/${agency.seller}`)}
+                    sx={{
+                      backgroundColor: "#EBAF70",
+                      color: "#000",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      px: 2,
+                      py: 0.5,
+                      borderRadius: "25px",
+                      "&:hover": {
+                        backgroundColor: "#d99c4aff",
+                      },
+                    }}
+                  >
+                    One property listed
+                  </Button>
+                );
+              } else {
+                return (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => navigate(`/agencies/${agency.seller}`)}
+                    sx={{
+                      backgroundColor: "#EBAF70",
+                      color: "#000",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      px: 2,
+                      py: 0.5,
+                      borderRadius: "25px",
+                      "&:hover": {
+                        backgroundColor: "#d99c4aff",
+                      },
+                    }}
+                  >
+                    {agency.seller_listings.length} properties listed
+                  </Button>
+                );
+              }
+            }
+
+            if (agency.agency_name && agency.phone_number)
+              return (
+                <Card
+                  key={agency.id}
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    borderRadius: "20px",
+                    overflow: "hidden",
+                    border: "1px solid #e0e0e0",
+                    boxShadow: "0px 10px 25px rgba(0,0,0,0.05)",
+                    transition: "all 0.3s ease-in-out",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: "0px 15px 35px rgba(0,0,0,0.12)",
+                    },
+                    backgroundColor: "white",
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    sx={{
+                      height: 200,
+                      objectFit: "cover",
+                    }}
+                    image={
+                      agency.profile_picture
+                        ? agency.profile_picture
+                        : defaultProfilePicture
+                    }
+                    title="Profile Picture"
+                  />
+                  <CardContent
+                    sx={{
+                      flexGrow: 1,
+                      p: 3,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Typography
+                      gutterBottom
+                      variant="h5"
+                      component="div"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1.5,
+                        color: "#1A2027",
+                        fontSize: "1.5rem",
+                      }}
+                    >
+                      {agency.agency_name}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                        lineHeight: 1.7,
+                        flexGrow: 1,
+                        fontSize: "0.95rem",
+                      }}
+                    >
+                      {agency.bio && agency.bio.length > 100
+                        ? `${agency.bio.substring(0, 100)}...`
+                        : agency.bio || "No description available"}
+                    </Typography>
+                  </CardContent>
+                  <CardActions
+                    sx={{
+                      p: 2,
+                      pt: 0,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {propertiesDisplay()}
+                  </CardActions>
+                </Card>
+              );
+          })}
+        </Box>
+      </Container>
+    </Box>
   );
 }
 

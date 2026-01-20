@@ -1,8 +1,7 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, Snackbar, TextField, Typography, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
 import Axios from "axios";
-import { AxiosError } from "axios";
 import { useEffect, useContext } from "react";
 
 //Contexts
@@ -14,13 +13,21 @@ type State = {
   passwordValue: string;
   sendRequest: number;
   token: string;
+  openSnack: boolean;
+  disabledBtn: boolean;
+  serverError: boolean;
 };
 
 type Action =
   | { type: "catchUsernameChange"; usernameChosen: string }
   | { type: "catchPasswordChange"; passwordChosen: string }
   | { type: "changeSendRequest" }
-  | { type: "catchToken"; tokenValue: string };
+  | { type: "catchToken"; tokenValue: string }
+  | { type: "openTheSnack" }
+  | { type: "closeTheSnack" }
+  | { type: "disableTheButton" }
+  | { type: "allowTheButton" }
+  | { type: "catchServerError" };
 
 function Login() {
   const navigate = useNavigate();
@@ -29,24 +36,29 @@ function Login() {
   const GlobalState = useContext(StateContext);
 
   if (!GlobalDispatch || !GlobalState) {
-  throw new Error("Global context is not available");
-}
+    throw new Error("Global context is not available");
+  }
 
   const initialState: State = {
     usernameValue: "",
     passwordValue: "",
     sendRequest: 0,
     token: "",
+    openSnack: false,
+    disabledBtn: false,
+    serverError: false,
   };
 
   function ReducerFunction(draft: State, action: Action) {
     switch (action.type) {
       case "catchUsernameChange":
         draft.usernameValue = action.usernameChosen;
+        draft.serverError = false;
         break;
 
       case "catchPasswordChange":
         draft.passwordValue = action.passwordChosen;
+        draft.serverError = false;
         break;
 
       case "changeSendRequest":
@@ -56,6 +68,25 @@ function Login() {
       case "catchToken":
         draft.token = action.tokenValue;
         break;
+
+      case "openTheSnack":
+        draft.openSnack = true;
+        break;
+
+      case "closeTheSnack":
+        draft.openSnack = false;
+        break;
+
+      case "disableTheButton":
+        draft.disabledBtn = true;
+        break;
+
+      case "allowTheButton":
+        draft.disabledBtn = false;
+        break;
+
+      case "catchServerError":
+        draft.serverError = true;
     }
   }
 
@@ -78,7 +109,7 @@ function Login() {
               username: state.usernameValue,
               password: state.passwordValue,
             },
-            { cancelToken: source.token }
+            { cancelToken: source.token },
           );
           console.log(response.data);
           dispatch({
@@ -94,8 +125,9 @@ function Login() {
 
           // navigate('/')
         } catch (error) {
-          const err = error as AxiosError;
-          console.log(err.response);
+          dispatch({ type: "allowTheButton" });
+          dispatch({ type: "catchServerError" });
+          console.error("Login error:", error);
         }
       }
       LogIn();
@@ -118,21 +150,20 @@ function Login() {
                 Authorization: `Token ${state.token}`,
               },
               cancelToken: source.token,
-            }
+            },
           );
-          console.log(response.data);
           if (GlobalDispatch) {
-          GlobalDispatch({
-            type: "userSignsIn",
-            usernameInfo: response.data.username,
-            emailInfo: response.data.email,
-            IdInfo: response.data.id,
-          });
-        }
-          navigate("/");
+            GlobalDispatch({
+              type: "userSignsIn",
+              usernameInfo: response.data.username,
+              emailInfo: response.data.email,
+              IdInfo: response.data.id,
+            });
+          }
+
+          dispatch({ type: "openTheSnack" });
         } catch (error) {
-          const err = error as AxiosError;
-          console.log(err.response);
+          console.error("Get user info error:", error);
         }
       }
       GetUserInfo();
@@ -141,6 +172,14 @@ function Login() {
       };
     }
   }, [state.token]);
+
+  useEffect(() => {
+    if (state.openSnack) {
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+    }
+  }, [state.openSnack]);
 
   return (
     <>
@@ -169,6 +208,13 @@ function Login() {
             >
               Login
             </Typography>
+
+            {state.serverError ? (
+              <Alert severity="error">Incorrect username or password!</Alert>
+            ) : (
+              ""
+            )}
+
             <TextField
               id="username"
               label="Username"
@@ -180,6 +226,7 @@ function Login() {
                   usernameChosen: e.target.value,
                 })
               }
+              error={state.serverError ? true : false}
             />
             <TextField
               id="password"
@@ -193,6 +240,7 @@ function Login() {
                   passwordChosen: e.target.value,
                 })
               }
+              error={state.serverError ? true : false}
             />
 
             <Button
@@ -207,6 +255,7 @@ function Login() {
                 textTransform: "none",
                 "&:hover": { background: "#00c853" },
               }}
+              disabled={state.disabledBtn}
             >
               Login
             </Button>
@@ -226,6 +275,16 @@ function Login() {
             Sign Up{" "}
           </span>
         </Typography>
+        <Snackbar
+          open={state.openSnack}
+          message="You have successfully logged in"
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+          autoHideDuration={3000}
+          onClose={() => dispatch({ type: "closeTheSnack" })}
+        />
       </Box>
     </>
   );

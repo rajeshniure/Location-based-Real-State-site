@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Axios from "axios";
 import { AxiosError } from "axios";
 import { useImmerReducer } from "use-immer";
+import { useNavigate } from "react-router-dom";
 
 import {
   Box,
@@ -15,6 +16,11 @@ import {
   Typography,
   IconButton,
   CardActions,
+  Avatar,
+  Divider,
+  Stack,
+  Fab,
+  Chip,
 } from "@mui/material";
 import {
   MapContainer,
@@ -27,17 +33,12 @@ import {
 import { Icon } from "leaflet";
 import { Map as LeafletMap } from "leaflet";
 
-
 import RoomIcon from '@mui/icons-material/Room';
 
-// import polygonOne from "../Components/shape";
 import houseIconPng from "../assets/Mapicons/house.png";
 import apertmentIconPng from "../assets/Mapicons/apartment.png";
 import officeIconPng from "../assets/Mapicons/office.png";
-
-// import img1 from "../assets/img1.jpg"
-
-// import myListings from "../assets/Data/Dummydata";
+import { FavoriteBorder } from "@mui/icons-material";
 
 export interface Listing {
   id: number;
@@ -65,9 +66,8 @@ type Action =
 | { type: "getMap"; mapData: LeafletMap }
 
 function Listings() {
-  //  fetch("http://127.0.0.1:8000/api/listings/")
-  //  .then(response => response.json())
-  //  .then(data => console.log(data));
+
+  const navigate = useNavigate();
 
   const houseIcon = new Icon({
     iconUrl: houseIconPng,
@@ -82,8 +82,6 @@ function Listings() {
     iconSize: [40, 40],
   });
 
-  // const [latitude, setLatitude] = useState(27.705989268509068);
-  // const [longitude, setLongitude] = useState(85.31711091327156);
 
   const initialState: State = {
     mapInstance: null,
@@ -110,20 +108,6 @@ function Listings() {
       return null;
     }
 
-  // function GoEast() {
-  //   setLatitude(27.705556704779944);
-  //   setLongitude(85.32283053794626);
-  // }
-  // function GoCenter() {
-  //   setLatitude(27.705989268509068);
-  //   setLongitude(85.31711091327156);
-  // }
-
-  // const polyOne: [number, number][] = [
-  //   [27.705, 85.325],
-  //   [27.71, 85.33],
-  //   [27.715, 85.32],
-  // ];
 
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [dataIsLoading, setDataIsLoading] = useState(true);
@@ -179,80 +163,139 @@ function Listings() {
         {allListings.map((listing: Listing) => {
           return (
             <Card
-              key={listing.id}
-              sx={{
-                m: "0.5rem",
-                border: "1px solid black",
-                position: "relative",
-              }}
-            >
-              <CardHeader
-                action={
-                  <IconButton aria-label="settings" onClick = {()=> state.mapInstance.flyTo([listing.latitude, listing.longitude],16)}>
+                key={listing.id}
+                sx={{
+                  m: "1rem",
+                  maxWidth: 500,
+                  borderRadius: "20px",
+                  overflow: "hidden",
+                  border: "1px solid #e0e0e0",
+                  boxShadow: "0px 10px 25px rgba(0,0,0,0.05)",
+                  transition: "all 0.3s ease-in-out",
+                  position: "relative",
+                  "&:hover": {
+                    transform: "translateY(-8px)",
+                    boxShadow: "0px 15px 35px rgba(0,0,0,0.12)",
+                  },
+                }}
+              >
+                {/* Image Section with Overlays */}
+                <Box sx={{ position: "relative" }}>
+                  <CardMedia
+                    component="img"
+                    image={listing.picture1}
+                    alt={listing.title}
+                    sx={{ height: 280, cursor: "pointer", objectFit: "cover" }}
+                    onClick={() => navigate(`/listings/${listing.id}`)}
+                  />
+
+                  {/* Status Badge (Listing Type) */}
+                  <Chip
+                    label={listing.listing_type}
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      top: 16,
+                      left: 16,
+                      bgcolor: "rgba(0, 0, 0, 0.6)",
+                      color: "white",
+                      backdropFilter: "blur(4px)",
+                      fontWeight: 600,
+                      fontSize: "0.7rem",
+                      textTransform: "uppercase",
+                    }}
+                  />
+
+                  {/* Price Tag Overlay */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 16,
+                      left: 16,
+                      bgcolor: "white",
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    }}
+                  >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1A2027" }}>
+                      Rs {listing.price.toLocaleString()}
+                      {listing.property_status !== "Sale" && (
+                        <Box component="span" sx={{ fontSize: "0.8rem", fontWeight: 400, color: "text.secondary" }}>
+                          /{listing.rental_frequency}
+                        </Box>
+                      )}
+                    </Typography>
+                  </Box>
+
+                  {/* Map Action Button (Fly To) */}
+                  <Fab
+                    size="small"
+                    color="primary"
+                    onClick={() => state.mapInstance.flyTo([listing.latitude, listing.longitude], 16)}
+                    sx={{
+                      position: "absolute",
+                      bottom: -20,
+                      right: 20,
+                      zIndex: 2,
+                      boxShadow: "0 4px 20px rgba(25, 118, 210, 0.4)",
+                    }}
+                  >
                     <RoomIcon />
-                  </IconButton>
-                }
-                title={listing.title}
-              />
-              <CardMedia
-                component="img"
-                image={listing.picture1}
-                alt={listing.title}
-                sx={{ px: "1rem", height: "20rem", width: "30rem" }}
-              />
-              <CardContent>
-                <Typography variant="body2">
-                  {listing.description.substring(0, 200)}...
-                </Typography>
-              </CardContent>
-              {listing.property_status === "Sale" ? (
-                <Typography
-                  sx={{
-                    position: "absolute",
-                    top: "100px",
-                    left: "20px",
-                    padding: "5px",
-                    backgroundColor: "#00e676",
-                    zIndex: "1000",
-                    color: "black",
-                    borderRadius: "5px",
-                  }}
-                >
-                  {listing.listing_type}: Rs{" "}
-                  {listing.price
-                    .toString()
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                </Typography>
-              ) : (
-                <Typography
-                  sx={{
-                    position: "absolute",
-                    top: "100px",
-                    left: "20px",
-                    padding: "5px",
-                    backgroundColor: "#00e676",
-                    zIndex: "1000",
-                    color: "black",
-                    borderRadius: "5px",
-                  }}
-                >
-                  {listing.listing_type}: Rs{" "}
-                  {listing.price
-                    .toString()
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}{" "}
-                  / {listing.rental_frequency}
-                </Typography>
-              )}
+                  </Fab>
+                </Box>
 
-              <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          {listing.seller_agency_name}
-        </IconButton>
-        
-        
+                <CardContent sx={{ pt: 1, pb: 1 }}>
+                  {/* Title */}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "1.5rem",
+                      mb: 0.5,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {listing.title}
+                  </Typography>
 
-      </CardActions>
-            </Card>
+                  {/* Description (Truncated) */}
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      height: "40px",
+                      lineHeight: "20px",
+                      mb: 1,
+                    }}
+                  >
+                    {listing.description.substring(0, 200)}...
+                  </Typography>
+
+                </CardContent>
+
+                <Divider variant="middle" sx={{ opacity: 0.6 }} />
+
+                <CardActions sx={{ justifyContent: "space-between", px: 2, py: 1.5 }}>
+                  {/* Seller Info */}
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Avatar sx={{ width: 24, height: 24, bgcolor: "secondary.main", fontSize: "0.7rem", mr: 1 }}>
+                      {(listing.seller_agency_name || listing.seller_username || "?").charAt(0)}
+                    </Avatar>
+                    <Typography variant="caption" sx={{ fontWeight: 600, color: "text.primary" }}>
+                      {listing.seller_agency_name || "Independent Seller"}
+                    </Typography>
+                  </Box>
+
+                </CardActions>
+              </Card>
           );
         })}
       </Grid>
@@ -300,12 +343,15 @@ function Listings() {
                     <img
                       src={listing.picture1}
                       alt=""
-                      style={{ height: "14rem", width: "18rem" }}
+                      style={{ height: "14rem", width: "18rem",cursor: "pointer" }}
+                      onClick = {()=> navigate(`/listings/${listing.id}`)}
+
                     />
                     <Typography variant="body1">
                       {listing.description.substring(0, 120)}...
                     </Typography>
-                    <Button variant="contained" fullWidth>
+                    <Button variant="contained" fullWidth onClick = {()=> navigate(`/listings/${listing.id}`)}
+>
                       Details
                     </Button>
                   </Popup>
@@ -313,14 +359,6 @@ function Listings() {
               );
             })}
 
-            {/* <Marker icon = {houseIcon} position={[latitude, longitude]}>
-                <Popup>
-                  <Typography variant="h5">A title</Typography>
-                  <img src={img1} alt="" style={{height:'14rem',width:"18rem"}}/>
-                  <Typography variant="body1"> A description below the title</Typography>
-                  <Button variant="contained" fullWidth>A link</Button>
-                </Popup>
-              </Marker> */}
           </MapContainer>
         </Box>
       </Grid>

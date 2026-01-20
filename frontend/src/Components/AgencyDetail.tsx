@@ -2,14 +2,12 @@ import { useEffect } from "react";
 import Axios from "axios";
 import { useImmerReducer } from "use-immer";
 import { AxiosError } from "axios";
-import {  useParams } from "react-router-dom";
-// import StateContext from "../Contexts/StateContext";
+import {  useParams,useNavigate } from "react-router-dom";
 import defaultProfilePicture from "../assets/defaultProfilePicture.jpg";
 
 import {
   Box,
   CircularProgress,
-  // Button,
   Grid,
   Typography,
   IconButton,
@@ -46,15 +44,10 @@ type Action =
   | { type: "catchUserProfileInfo"; profileObject: any }
   | { type: "loadingDone" };
 
-// type GlobalStateType = {
-//   userId: string;
-//   userIsLogged: boolean;
-//   userUsername: string;
-// };
+
 
 function AgencyDetail() {
-  //   const navigate = useNavigate();
-  // const GlobalState = useContext(StateContext) as GlobalStateType;
+    const navigate = useNavigate();
 
   const params = useParams();
 
@@ -175,13 +168,15 @@ function AgencyDetail() {
             <Grid key={listing.id} sx={{ mt: "1rem", maxWidth: "20rem" }}>
               <Card>
                 <CardMedia
-                  sx={{ height: 140 }}
+                  sx={{ height: 140, cursor:"pointer" }}
                   image={
                     `http://localhost:8000${listing.picture1}`
                       ? `http://localhost:8000${listing.picture1}`
                       : defaultProfilePicture
                   }
                   title="Listing Picture"
+                  onClick = {()=> navigate(`/listings/${listing.id}`)}
+                  
                 />
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">

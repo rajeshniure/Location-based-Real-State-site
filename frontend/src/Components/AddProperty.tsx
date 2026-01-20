@@ -9,6 +9,7 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -67,6 +68,8 @@ type State = {
     agencyName: string;
     phoneNumber: string;
   };
+  openSnack: boolean;
+  disabledBtn: boolean;
 };
 
 type Action =
@@ -99,7 +102,11 @@ type Action =
     }
   | { type: "catchUploadedPictures"; picturesChosen: File[] }
   | { type: "changeSendRequest" }
-  | { type: "catchUserProfileInfo"; profileObject: any };
+  | { type: "catchUserProfileInfo"; profileObject: any }
+  | { type: "openTheSnack" }
+  | { type: "closeTheSnack" }
+  | { type: "disableTheButton" }
+  | { type: "allowTheButton" };
 
 type AreaOption = {
   value: string;
@@ -232,6 +239,8 @@ function AddProperty() {
       agencyName: "",
       phoneNumber: "",
     },
+    openSnack: false,
+		disabledBtn: false,
   };
 
   function ReducerFunction(draft: State, action: Action) {
@@ -318,6 +327,22 @@ function AddProperty() {
         draft.userProfile.agencyName = action.profileObject.agency_name;
         draft.userProfile.phoneNumber = action.profileObject.phone_number;
         break;
+
+      case "openTheSnack":
+          draft.openSnack = true;
+          break;
+
+      case "closeTheSnack":
+          draft.openSnack = false;
+          break;
+  
+      case "disableTheButton":
+          draft.disabledBtn = true;
+          break;
+  
+      case "allowTheButton":
+          draft.disabledBtn = false;
+          break;
     }
   }
 
@@ -443,6 +468,7 @@ function AddProperty() {
     e.preventDefault();
     console.log("form is submitted! ");
     dispatch({ type: "changeSendRequest" });
+    dispatch({ type: "disableTheButton" });
   }
 
   useEffect(() => {
@@ -483,9 +509,10 @@ function AddProperty() {
             formData
           );
           console.log(response.data);
-          navigate("/listings");
+          dispatch({ type: "openTheSnack" });
         } catch (error) {
           const err = error as AxiosError;
+          dispatch({ type: "allowTheButton" });
           console.log(err.response);
         }
       }
@@ -536,6 +563,7 @@ function AddProperty() {
             textTransform: "none",
             "&:hover": { background: "#00c853" },
           }}
+          disabled={state.disabledBtn}
         >
           Submit
         </Button>
@@ -588,6 +616,13 @@ function AddProperty() {
       )
     }
   }
+  useEffect(() => {
+    if (state.openSnack) {
+      setTimeout(() => {
+        navigate("/listings");
+      }, 1500);
+    }
+  }, [state.openSnack]);
 
   return (
     <Box
@@ -971,13 +1006,16 @@ function AddProperty() {
           {SubmitButtonDisplay()}
         </Box>
       </form>
-      {/* <Button
-        onClick={() =>
-          console.log("Uploaded Pictures: ", state.uploadedPictures)
-        }
-      >
-        Test button
-      </Button> */}
+      <Snackbar
+				open={state.openSnack}
+				message="You have successfully added your property!"
+				anchorOrigin={{
+					vertical: "bottom",
+					horizontal: "center",
+				}}
+				autoHideDuration={3000}
+				onClose={() => dispatch({ type: "closeTheSnack" })}
+			/>
     </Box>
   );
 }

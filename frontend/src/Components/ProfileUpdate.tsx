@@ -12,6 +12,7 @@ import {
   //   Checkbox,
   //   FormControlLabel,
   Grid,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -23,6 +24,8 @@ type State = {
   uploadedPicture: File[];
   profilePictureValue: File | null;
   sendRequest: number;
+  openSnack: boolean;
+  disabledBtn: boolean;
 };
 
 type Action =
@@ -31,7 +34,11 @@ type Action =
   | { type: "catchBioChange"; bioChosen: string }
   | { type: "catchUploadedPicture"; pictureChosen: File[] }
   | { type: "catchProfilePictureChange"; profilePictureChosen: File | null }
-  | { type: "changeSendRequest" };
+  | { type: "changeSendRequest" }
+  | { type: "openTheSnack" }
+  | { type: "closeTheSnack" }
+  | { type: "disableTheButton" }
+  | { type: "allowTheButton" };
 
 type GlobalStateType = {
   userId: string;
@@ -51,6 +58,8 @@ function ProfileUpdate(props: any) {
     uploadedPicture: [],
     profilePictureValue: props.userProfile.profilePic,
     sendRequest: 0,
+    openSnack: false,
+    disabledBtn: false,
   };
 
   function ReducerFunction(draft: State, action: Action) {
@@ -72,6 +81,18 @@ function ProfileUpdate(props: any) {
         break;
       case "changeSendRequest":
         draft.sendRequest = draft.sendRequest + 1;
+        break;
+      case "openTheSnack":
+        draft.openSnack = true;
+        break;
+      case "closeTheSnack":
+        draft.openSnack = false;
+        break;
+      case "disableTheButton":
+        draft.disabledBtn = true;
+        break;
+      case "allowTheButton":
+        draft.disabledBtn = false;
         break;
     }
   }
@@ -116,9 +137,10 @@ function ProfileUpdate(props: any) {
             formData
           );
           console.log(response.data);
-          navigate(0);
+          dispatch({ type: "openTheSnack" });
         } catch (error) {
           const err = error as AxiosError;
+          dispatch({ type: "allowTheButton" });
           console.log(err.response);
         }
       }
@@ -129,7 +151,16 @@ function ProfileUpdate(props: any) {
   function FormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     dispatch({ type: "changeSendRequest" });
+    dispatch({ type: "disableTheButton" });
   }
+
+  useEffect(() => {
+		if (state.openSnack) {
+			setTimeout(() => {
+				navigate(0);
+			}, 1500);
+		}
+	}, [state.openSnack]);
 
   function ProfilePictureDisplay() {
     if (typeof state.profilePictureValue !== "string") {
@@ -261,11 +292,22 @@ function ProfileUpdate(props: any) {
                 textTransform: "none",
                 "&:hover": { background: "#00c853" },
               }}
+              disabled={state.disabledBtn}
             >
               Update
             </Button>
           </Box>
         </form>
+        <Snackbar
+					open={state.openSnack}
+					message="You have successfully updated your profile!"
+					anchorOrigin={{
+						vertical: "bottom",
+						horizontal: "center",
+					}}
+					autoHideDuration={3000}
+					onClose={() => dispatch({ type: "closeTheSnack" })}
+				/>
       </Box>
     </>
   );

@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import Axios from "axios";
 import { AxiosError } from "axios";
 import {
@@ -11,6 +11,7 @@ import {
   Drawer,
   Menu,
   MenuItem,
+  Snackbar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -44,6 +45,7 @@ const Navbar: React.FC = () => {
     navigate("/profile")
   }
 
+  const [openSnack, setOpenSnack] = useState<boolean>(false);
 
   async function HandleLogout() {
     setAnchorEl(null);
@@ -65,13 +67,21 @@ const Navbar: React.FC = () => {
           type: "logout",
         });
       }
-      navigate("/");
+      setOpenSnack(true);
     } catch (error) {
       const err = error as AxiosError;
       console.log(err.response);
     }
     }
   }
+
+  useEffect(() => {
+    if (openSnack) {
+      setTimeout(() => {
+        navigate("0");
+      }, 1500);
+    }
+  }, [openSnack]);
 
   return (
     <>
@@ -207,6 +217,16 @@ const Navbar: React.FC = () => {
                 Logout
               </MenuItem>
             </Menu>
+            <Snackbar
+						open={openSnack}
+						message="You have successfully logged out!"
+						anchorOrigin={{
+							vertical: "bottom",
+							horizontal: "center",
+						}}
+						autoHideDuration={3000}
+						onClose={() => setOpenSnack(false)}
+					/>
           </Box>
 
           {/* Mobile Hamburger */}

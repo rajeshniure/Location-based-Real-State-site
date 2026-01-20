@@ -10,6 +10,7 @@ import Register from "./Components/Register";
 import AddProperty from "./Components/AddProperty";
 import Profile from "./Components/Profile";
 import AgencyDetail from "./Components/AgencyDetail";
+import ListingDetail from "./Components/ListingDetail";
 
 
 
@@ -104,6 +105,7 @@ const AppRoutes = () => {
         <Route path="/listings" element={<Listings />} />
         <Route path="/agencies" element={<Agencies />} />
         <Route path="/agencies/:id" element={<AgencyDetail />} />
+        <Route path="/listings/:id" element={<ListingDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/addproperty" element={<AddProperty />} />
