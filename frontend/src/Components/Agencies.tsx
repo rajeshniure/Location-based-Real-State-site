@@ -227,7 +227,7 @@ function Agencies() {
                       transform: "translateY(-8px)",
                       boxShadow: "0px 15px 35px rgba(0,0,0,0.12)",
                     },
-                    backgroundColor: "white",
+                    backgroundColor: "#98AF90",
                   }}
                 >
                   <CardMedia

@@ -9,16 +9,16 @@ import {
   Button,
   Card,
   CardContent,
-  CardHeader,
+
   CardMedia,
   CircularProgress,
   Grid,
   Typography,
-  IconButton,
+ 
   CardActions,
   Avatar,
   Divider,
-  Stack,
+
   Fab,
   Chip,
 } from "@mui/material";
@@ -38,7 +38,6 @@ import RoomIcon from '@mui/icons-material/Room';
 import houseIconPng from "../assets/Mapicons/house.png";
 import apertmentIconPng from "../assets/Mapicons/apartment.png";
 import officeIconPng from "../assets/Mapicons/office.png";
-import { FavoriteBorder } from "@mui/icons-material";
 
 export interface Listing {
   id: number;
@@ -153,13 +152,19 @@ function Listings() {
   }
 
   return (
-    <Grid container spacing={2}>
-      <Grid
-        size={4}
-        display={"flex"}
-        flexDirection={"column"}
-        alignItems="flex-start"
-      >
+    <Box
+      sx={{
+        backgroundColor: "#252932",
+        pr:1
+      }}
+    >
+      <Grid container spacing={2}>
+        <Grid
+          size={4}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems="flex-start"
+        >
         {allListings.map((listing: Listing) => {
           return (
             <Card
@@ -363,6 +368,7 @@ function Listings() {
         </Box>
       </Grid>
     </Grid>
+    </Box>
   );
   
 }

@@ -9,12 +9,10 @@ import StateContext from "../Contexts/StateContext";
 import {
   Box,
   Button,
-  //   Checkbox,
-  //   FormControlLabel,
-  Grid,
   Snackbar,
   TextField,
   Typography,
+  Paper,
 } from "@mui/material";
 
 type State = {
@@ -132,11 +130,10 @@ function ProfileUpdate(props: any) {
         }
 
         try {
-          const response = await Axios.patch(
+          await Axios.patch(
             `http://127.0.0.1:8000/api/profiles/${GlobalState.userId}/update/`,
             formData
           );
-          console.log(response.data);
           dispatch({ type: "openTheSnack" });
         } catch (error) {
           const err = error as AxiosError;
@@ -157,7 +154,11 @@ function ProfileUpdate(props: any) {
   useEffect(() => {
 		if (state.openSnack) {
 			setTimeout(() => {
-				navigate(0);
+				if (props.closeDialog) {
+					props.closeDialog();
+				} else {
+					navigate(0);
+				}
 			}, 1500);
 		}
 	}, [state.openSnack]);
@@ -165,57 +166,62 @@ function ProfileUpdate(props: any) {
   function ProfilePictureDisplay() {
     if (typeof state.profilePictureValue !== "string") {
       return (
-        <ul>
+        <Box sx={{ textAlign: "center", color: "white" }}>
           {state.profilePictureValue ? (
-            <li>{state.profilePictureValue.name}</li>
+            <Typography variant="body2">{state.profilePictureValue.name}</Typography>
           ) : (
             ""
           )}
-        </ul>
+        </Box>
       );
     } else if (typeof state.profilePictureValue === "string") {
       return (
-        <Grid container sx={{ mt: "1rem", mx: "auto" }}>
-          <img
+        <Box sx={{ display: "flex", justifyContent: "center"}}>
+          <Box
+            component="img"
             src={props.userProfile.profilePic}
             alt="profile pic"
-            style={{ height: "5rem", width: "5rem" }}
+            sx={{
+              height: "5rem",
+              width: "5rem",
+              borderRadius: "10%",
+              objectFit: "cover",
+              border: "2px solid #EBAF70",
+            }}
           />
-        </Grid>
+        </Box>
       );
     }
   }
 
   return (
-    <>
-      <Box
-        sx={{
-          width: "400px",
-          margin: "25px auto",
-          border: "3px solid #EBAF70",
-          borderRadius: "16px",
-        }}
-      >
+    <Paper
+      elevation={8}
+      sx={{
+        borderRadius: "16px",
+        background: "rgba(255, 255, 255, 0.05)",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(235, 175, 112, 0.2)",
+      }}
+    >
+      <Box sx={{ p: 4 }}>
         <form onSubmit={FormSubmit}>
-          <Box
-            display="flex"
-            flexDirection="column"
-            gap={3}
-            sx={{
-              margin: "0px auto ",
-              padding: "20px",
-            }}
-          >
+          <Box display="flex" flexDirection="column" gap={3}>
             <Typography
               variant="h4"
               textAlign="center"
-              sx={{ fontWeight: "600" }}
+              sx={{
+                fontWeight: "bold",
+                color: "#EBAF70",
+                mb: 1,
+              }}
             >
               My Profile
             </Typography>
+           
             <TextField
               id="agencyName"
-              label="AgencyName*"
+              label="Agency Name*"
               variant="outlined"
               value={state.agencyNameValue}
               onChange={(e) =>
@@ -224,6 +230,26 @@ function ProfileUpdate(props: any) {
                   agencyNameChosen: e.target.value,
                 })
               }
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#EBAF70",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#EBAF70",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "rgba(255, 255, 255, 0.7)",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#EBAF70",
+                },
+              }}
             />
             <TextField
               id="phoneNumber"
@@ -236,6 +262,26 @@ function ProfileUpdate(props: any) {
                   phoneNumberChosen: e.target.value,
                 })
               }
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#EBAF70",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#EBAF70",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "rgba(255, 255, 255, 0.7)",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#EBAF70",
+                },
+              }}
             />
             <TextField
               id="bio"
@@ -250,20 +296,42 @@ function ProfileUpdate(props: any) {
                   bioChosen: e.target.value,
                 })
               }
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#EBAF70",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#EBAF70",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "rgba(255, 255, 255, 0.7)",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#EBAF70",
+                },
+              }}
             />
-            <Grid container>{ProfilePictureDisplay()}</Grid>
-
+              {ProfilePictureDisplay()}
             <Button
-              variant="contained"
+              variant="outlined"
               component="label"
               sx={{
-                width: "50%",
-                mx: "auto",
-                background: "#00d3e6ff",
-                color: "#000",
-                borderRadius: "8px",
+                width:"50%",
+                mx:"auto",
+                borderColor: "#EBAF70",
+                color: "#EBAF70",
                 textTransform: "none",
-                "&:hover": { background: "#00c5c8ff" },
+                "&:hover": {
+                  borderColor: "#d99f5f",
+                  color: "#d99f5f",
+                  backgroundColor: "rgba(235, 175, 112, 0.1)",
+                },
               }}
             >
               Profile Picture
@@ -284,13 +352,18 @@ function ProfileUpdate(props: any) {
               variant="contained"
               type="submit"
               sx={{
-                width: "50%",
-                mx: "auto",
-                background: "#00e676",
-                color: "#000",
-                borderRadius: "16px",
+                width:"50%",
+                mx:"auto",
+                backgroundColor: "#EBAF70",
+                color: "#252932",
+                fontWeight: "bold",
                 textTransform: "none",
-                "&:hover": { background: "#00c853" },
+                "&:hover": {
+                  backgroundColor: "#d99f5f",
+                },
+                "&:disabled": {
+                  backgroundColor: "rgba(235, 175, 112, 0.5)",
+                },
               }}
               disabled={state.disabledBtn}
             >
@@ -299,17 +372,17 @@ function ProfileUpdate(props: any) {
           </Box>
         </form>
         <Snackbar
-					open={state.openSnack}
-					message="You have successfully updated your profile!"
-					anchorOrigin={{
-						vertical: "bottom",
-						horizontal: "center",
-					}}
-					autoHideDuration={3000}
-					onClose={() => dispatch({ type: "closeTheSnack" })}
-				/>
+          open={state.openSnack}
+          message="You have successfully updated your profile!"
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+          autoHideDuration={3000}
+          onClose={() => dispatch({ type: "closeTheSnack" })}
+        />
       </Box>
-    </>
+    </Paper>
   );
 }
 

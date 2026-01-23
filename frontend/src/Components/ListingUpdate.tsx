@@ -16,6 +16,9 @@ import {
 	FormControlLabel,
 	Checkbox,
 	Snackbar,
+	Box,
+	Container,
+	Paper,
 } from "@mui/material";
 
 interface ListingUpdateProps {
@@ -257,8 +260,8 @@ function ListingUpdate(props: ListingUpdateProps) {
 				}
 
 				try {
-					const response = await Axios.patch(
-						`https://127.0.0.1:8000/api/listings/${props.listingData.id}/update/`,
+					await Axios.patch(
+						`http://127.0.0.1:8000/api/listings/${props.listingData.id}/update/`,
 						formData
 					);
 
@@ -301,307 +304,511 @@ function ListingUpdate(props: ListingUpdateProps) {
 	}
 
 	return (
-		<div
-			style={{
-				width: "75%",
-				marginLeft: "auto",
-				marginRight: "auto",
-				marginTop: "3rem",
-				border: "5px solid black",
-				padding: "3rem",
+		<Box
+			sx={{
+				backgroundColor: "#252932",
+				py: 4,
 			}}
 		>
-			<form onSubmit={FormSubmit}>
-				<Grid container justifyContent="center">
-					<Typography variant="h4">UPDATE LISTING</Typography>
-				</Grid>
-
-				<Grid container style={{ marginTop: "1rem" }}>
-					<TextField
-						id="title"
-						label="Title*"
-						variant="standard"
-						fullWidth
-						value={state.titleValue}
-						onChange={(e) =>
-							dispatch({
-								type: "catchTitleChange",
-								titleChosen: e.target.value,
-							})
-						}
-					/>
-				</Grid>
-
-				<Grid container justifyContent="space-between">
-					<Grid size={5} style={{ marginTop: "1rem" }}>
-						<TextField
-							id="listingType"
-							label="Listing Type*"
-							variant="standard"
-							fullWidth
-							value={state.listingTypeValue}
-							onChange={(e) =>
-								dispatch({
-									type: "catchListingTypeChange",
-									listingTypeChosen: e.target.value,
-								})
-							}
-							select
-							slotProps={{
-                                select: {
-                                    native: true,
-                                },
-                            }}
-						>
-							{listingTypeOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</TextField>
-					</Grid>
-
-					<Grid size={5} style={{ marginTop: "1rem" }}>
-						<TextField
-							id="propertyStatus"
-							label="Property Status*"
-							variant="standard"
-							fullWidth
-							value={state.propertyStatusValue}
-							onChange={(e) =>
-								dispatch({
-									type: "catchPropertyStatusChange",
-									propertyStatusChosen: e.target.value,
-								})
-							}
-							select
-							slotProps={{
-								select:{
-									native: true,
-								},	
-							}}
-						>
-							{propertyStatusOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</TextField>
-					</Grid>
-				</Grid>
-
-				<Grid container justifyContent="space-between">
-					<Grid size={5} style={{ marginTop: "1rem" }}>
-						<TextField
-							id="rentalFrequency"
-							label="Rental Frequency"
-							variant="standard"
-							disabled={state.propertyStatusValue === "Sale" ? true : false}
-							fullWidth
-							value={state.rentalFrequencyValue}
-							onChange={(e) =>
-								dispatch({
-									type: "catchRentalFrequencyChange",
-									rentalFrequencyChosen: e.target.value,
-								})
-							}
-							select
-							slotProps={{
-								select:{
-								native: true,
-								},
-							}}
-						>
-							{rentalFrequencyOptions.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</TextField>
-					</Grid>
-
-					<Grid size={5} style={{ marginTop: "1rem" }}>
-						<TextField
-							id="price"
-							type="number"
-							label={PriceDisplay()}
-							variant="standard"
-							fullWidth
-							value={state.priceValue}
-							onChange={(e) =>
-								dispatch({
-									type: "catchPriceChange",
-									priceChosen: e.target.value,
-								})
-							}
-						/>
-					</Grid>
-				</Grid>
-
-				<Grid container style={{ marginTop: "1rem" }}>
-					<TextField
-						id="description"
-						label="Description"
-						variant="outlined"
-						multiline
-						rows={6}
-						fullWidth
-						value={state.descriptionValue}
-						onChange={(e) =>
-							dispatch({
-								type: "catchDescriptionChange",
-								descriptionChosen: e.target.value,
-							})
-						}
-					/>
-				</Grid>
-
-				{state.listingTypeValue === "Office" ? (
-					""
-				) : (
-					<Grid size={3} container style={{ marginTop: "1rem" }}>
-						<TextField
-							id="rooms"
-							label="Rooms"
-							type="number"
-							variant="standard"
-							fullWidth
-							value={state.roomsValue}
-							onChange={(e) =>
-								dispatch({
-									type: "catchRoomsChange",
-									roomsChosen: e.target.value,
-								})
-							}
-						/>
-					</Grid>
-				)}
-
-				<Grid container justifyContent="space-between">
-					<Grid size={2} style={{ marginTop: "1rem" }}>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={state.furnishedValue}
-									onChange={(e) =>
-										dispatch({
-											type: "catchFurnishedChange",
-											furnishedChosen: e.target.checked,
-										})
-									}
-								/>
-							}
-							label="Furnished"
-						/>
-					</Grid>
-
-					<Grid size={2} style={{ marginTop: "1rem" }}>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={state.poolValue}
-									onChange={(e) =>
-										dispatch({
-											type: "catchPoolChange",
-											poolChosen: e.target.checked,
-										})
-									}
-								/>
-							}
-							label="Pool"
-						/>
-					</Grid>
-
-					<Grid size={2} style={{ marginTop: "1rem" }}>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={state.elevatorValue}
-									onChange={(e) =>
-										dispatch({
-											type: "catchElevatorChange",
-											elevatorChosen: e.target.checked,
-										})
-									}
-								/>
-							}
-							label="Elevator"
-						/>
-					</Grid>
-
-					<Grid size={2} style={{ marginTop: "1rem" }}>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={state.cctvValue}
-									onChange={(e) =>
-										dispatch({
-											type: "catchCctvChange",
-											cctvChosen: e.target.checked,
-										})
-									}
-								/>
-							}
-							label="Cctv"
-						/>
-					</Grid>
-
-					<Grid size={2} style={{ marginTop: "1rem" }}>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={state.parkingValue}
-									onChange={(e) =>
-										dispatch({
-											type: "catchParkingChange",
-											parkingChosen: e.target.checked,
-										})
-									}
-								/>
-							}
-							label="Parking"
-						/>
-					</Grid>
-				</Grid>
-
-				<Grid
-					container
-					size={8}
-					style={{ marginTop: "1rem", marginLeft: "auto", marginRight: "auto" }}
+			<Container maxWidth="md">
+				<Paper
+					elevation={8}
+					sx={{
+						p: 4,
+						borderRadius: "16px",
+						background: "rgba(255, 255, 255, 0.05)",
+						backdropFilter: "blur(10px)",
+						border: "1px solid rgba(235, 175, 112, 0.2)",
+					}}
 				>
-					<Button
-						variant="contained"
-						fullWidth
-						type="submit"
-						style={{
-							backgroundColor: "green",
-							color: "white",
-							fontSize: "1.1rem",
-							marginLeft: "1rem",
-							// "&:hover": {
-							// 	backgroundColor: "blue",
-							// },
+					<form onSubmit={FormSubmit}>
+						<Typography
+							variant="h4"
+							sx={{
+								color: "#EBAF70",
+								fontWeight: "bold",
+								textAlign: "center",
+								mb: 3,
+							}}
+						>
+							Update Listing
+						</Typography>
+
+						<Grid container sx={{ mb: 2 }}>
+							<TextField
+								id="title"
+								label="Title*"
+								variant="outlined"
+								fullWidth
+								value={state.titleValue}
+								onChange={(e) =>
+									dispatch({
+										type: "catchTitleChange",
+										titleChosen: e.target.value,
+									})
+								}
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										color: "white",
+										"& fieldset": {
+											borderColor: "rgba(255, 255, 255, 0.3)",
+										},
+										"&:hover fieldset": {
+											borderColor: "#EBAF70",
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: "#EBAF70",
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: "rgba(255, 255, 255, 0.7)",
+									},
+									"& .MuiInputLabel-root.Mui-focused": {
+										color: "#EBAF70",
+									},
+								}}
+							/>
+						</Grid>
+
+						<Grid container spacing={2} sx={{ mb: 2 }}>
+							<Grid size={6}>
+								<TextField
+									id="listingType"
+									label="Listing Type*"
+									variant="outlined"
+									fullWidth
+									value={state.listingTypeValue}
+									onChange={(e) =>
+										dispatch({
+											type: "catchListingTypeChange",
+											listingTypeChosen: e.target.value,
+										})
+									}
+									select
+									slotProps={{
+										select: {
+											native: true,
+										},
+									}}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: "white",
+											"& fieldset": {
+												borderColor: "rgba(255, 255, 255, 0.3)",
+											},
+											"&:hover fieldset": {
+												borderColor: "#EBAF70",
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: "#EBAF70",
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: "rgba(255, 255, 255, 0.7)",
+										},
+										"& .MuiInputLabel-root.Mui-focused": {
+											color: "#EBAF70",
+										},
+									}}
+								>
+									{listingTypeOptions.map((option) => (
+										<option key={option.value} value={option.value} style={{ backgroundColor: "#252932" }}>
+											{option.label}
+										</option>
+									))}
+								</TextField>
+							</Grid>
+
+							<Grid size={6}>
+								<TextField
+									id="propertyStatus"
+									label="Property Status*"
+									variant="outlined"
+									fullWidth
+									value={state.propertyStatusValue}
+									onChange={(e) =>
+										dispatch({
+											type: "catchPropertyStatusChange",
+											propertyStatusChosen: e.target.value,
+										})
+									}
+									select
+									slotProps={{
+										select: {
+											native: true,
+										},
+									}}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: "white",
+											"& fieldset": {
+												borderColor: "rgba(255, 255, 255, 0.3)",
+											},
+											"&:hover fieldset": {
+												borderColor: "#EBAF70",
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: "#EBAF70",
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: "rgba(255, 255, 255, 0.7)",
+										},
+										"& .MuiInputLabel-root.Mui-focused": {
+											color: "#EBAF70",
+										},
+									}}
+								>
+									{propertyStatusOptions.map((option) => (
+										<option key={option.value} value={option.value} style={{ backgroundColor: "#252932" }}>
+											{option.label}
+										</option>
+									))}
+								</TextField>
+							</Grid>
+						</Grid>
+
+						<Grid container spacing={2} sx={{ mb: 2 }}>
+							<Grid size={6}>
+								<TextField
+									id="rentalFrequency"
+									label="Rental Frequency"
+									variant="outlined"
+									disabled={state.propertyStatusValue === "Sale"}
+									fullWidth
+									value={state.rentalFrequencyValue}
+									onChange={(e) =>
+										dispatch({
+											type: "catchRentalFrequencyChange",
+											rentalFrequencyChosen: e.target.value,
+										})
+									}
+									select
+									slotProps={{
+										select: {
+											native: true,
+										},
+									}}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: "white",
+											"& fieldset": {
+												borderColor: "rgba(255, 255, 255, 0.3)",
+											},
+											"&:hover fieldset": {
+												borderColor: "#EBAF70",
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: "#EBAF70",
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: "rgba(255, 255, 255, 0.7)",
+										},
+										"& .MuiInputLabel-root.Mui-focused": {
+											color: "#EBAF70",
+										},
+									}}
+								>
+									{rentalFrequencyOptions.map((option) => (
+										<option key={option.value} value={option.value} style={{ backgroundColor: "#252932" }}>
+											{option.label}
+										</option>
+									))}
+								</TextField>
+							</Grid>
+
+							<Grid size={6}>
+								<TextField
+									id="price"
+									type="number"
+									label={PriceDisplay()}
+									variant="outlined"
+									fullWidth
+									value={state.priceValue}
+									onChange={(e) =>
+										dispatch({
+											type: "catchPriceChange",
+											priceChosen: e.target.value,
+										})
+									}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: "white",
+											"& fieldset": {
+												borderColor: "rgba(255, 255, 255, 0.3)",
+											},
+											"&:hover fieldset": {
+												borderColor: "#EBAF70",
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: "#EBAF70",
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: "rgba(255, 255, 255, 0.7)",
+										},
+										"& .MuiInputLabel-root.Mui-focused": {
+											color: "#EBAF70",
+										},
+									}}
+								/>
+							</Grid>
+						</Grid>
+
+						<Grid container sx={{ mb: 2 }}>
+							<TextField
+								id="description"
+								label="Description"
+								variant="outlined"
+								multiline
+								rows={6}
+								fullWidth
+								value={state.descriptionValue}
+								onChange={(e) =>
+									dispatch({
+										type: "catchDescriptionChange",
+										descriptionChosen: e.target.value,
+									})
+								}
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										color: "white",
+										"& fieldset": {
+											borderColor: "rgba(255, 255, 255, 0.3)",
+										},
+										"&:hover fieldset": {
+											borderColor: "#EBAF70",
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: "#EBAF70",
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: "rgba(255, 255, 255, 0.7)",
+									},
+									"& .MuiInputLabel-root.Mui-focused": {
+										color: "#EBAF70",
+									},
+								}}
+							/>
+						</Grid>
+
+						{state.listingTypeValue === "Office" ? (
+							""
+						) : (
+							<Grid size={4} sx={{ mb: 2 }}>
+								<TextField
+									id="rooms"
+									label="Rooms"
+									type="number"
+									variant="outlined"
+									fullWidth
+									value={state.roomsValue}
+									onChange={(e) =>
+										dispatch({
+											type: "catchRoomsChange",
+											roomsChosen: e.target.value,
+										})
+									}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: "white",
+											"& fieldset": {
+												borderColor: "rgba(255, 255, 255, 0.3)",
+											},
+											"&:hover fieldset": {
+												borderColor: "#EBAF70",
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: "#EBAF70",
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: "rgba(255, 255, 255, 0.7)",
+										},
+										"& .MuiInputLabel-root.Mui-focused": {
+											color: "#EBAF70",
+										},
+									}}
+								/>
+							</Grid>
+						)}
+
+						<Grid container spacing={2} sx={{ mb: 3 }}>
+							<Grid size={4}>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={state.furnishedValue}
+											onChange={(e) =>
+												dispatch({
+													type: "catchFurnishedChange",
+													furnishedChosen: e.target.checked,
+												})
+											}
+											sx={{
+												color: "#EBAF70",
+												"&.Mui-checked": {
+													color: "#EBAF70",
+												},
+											}}
+										/>
+									}
+									label={
+										<Typography sx={{ color: "white" }}>Furnished</Typography>
+									}
+								/>
+							</Grid>
+
+							<Grid size={4}>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={state.poolValue}
+											onChange={(e) =>
+												dispatch({
+													type: "catchPoolChange",
+													poolChosen: e.target.checked,
+												})
+											}
+											sx={{
+												color: "#EBAF70",
+												"&.Mui-checked": {
+													color: "#EBAF70",
+												},
+											}}
+										/>
+									}
+									label={<Typography sx={{ color: "white" }}>Pool</Typography>}
+								/>
+							</Grid>
+
+							<Grid size={4}>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={state.elevatorValue}
+											onChange={(e) =>
+												dispatch({
+													type: "catchElevatorChange",
+													elevatorChosen: e.target.checked,
+												})
+											}
+											sx={{
+												color: "#EBAF70",
+												"&.Mui-checked": {
+													color: "#EBAF70",
+												},
+											}}
+										/>
+									}
+									label={
+										<Typography sx={{ color: "white" }}>Elevator</Typography>
+									}
+								/>
+							</Grid>
+
+							<Grid size={4}>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={state.cctvValue}
+											onChange={(e) =>
+												dispatch({
+													type: "catchCctvChange",
+													cctvChosen: e.target.checked,
+												})
+											}
+											sx={{
+												color: "#EBAF70",
+												"&.Mui-checked": {
+													color: "#EBAF70",
+												},
+											}}
+										/>
+									}
+									label={<Typography sx={{ color: "white" }}>CCTV</Typography>}
+								/>
+							</Grid>
+
+							<Grid size={4}>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={state.parkingValue}
+											onChange={(e) =>
+												dispatch({
+													type: "catchParkingChange",
+													parkingChosen: e.target.checked,
+												})
+											}
+											sx={{
+												color: "#EBAF70",
+												"&.Mui-checked": {
+													color: "#EBAF70",
+												},
+											}}
+										/>
+									}
+									label={<Typography sx={{ color: "white" }}>Parking</Typography>}
+								/>
+							</Grid>
+						</Grid>
+
+						<Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+							<Button
+								variant="contained"
+								type="submit"
+								disabled={state.disabledBtn}
+								sx={{
+									backgroundColor: "#EBAF70",
+									color: "#252932",
+									fontWeight: "bold",
+									px: 4,
+									py: 1.5,
+									"&:hover": {
+										backgroundColor: "#d99f5f",
+									},
+									"&:disabled": {
+										backgroundColor: "rgba(235, 175, 112, 0.5)",
+									},
+								}}
+							>
+								Update
+							</Button>
+							<Button
+								variant="outlined"
+								onClick={props.closeDialog}
+								sx={{
+									borderColor: "#EBAF70",
+									color: "#EBAF70",
+									px: 4,
+									py: 1.5,
+									"&:hover": {
+										borderColor: "#d99f5f",
+										color: "#d99f5f",
+										backgroundColor: "rgba(235, 175, 112, 0.1)",
+									},
+								}}
+							>
+								Cancel
+							</Button>
+						</Box>
+					</form>
+					<Snackbar
+						open={state.openSnack}
+						message="You have successfully updated this listing!"
+						anchorOrigin={{
+							vertical: "bottom",
+							horizontal: "center",
 						}}
-						disabled={state.disabledBtn}
-					>
-						UPDATE
-					</Button>
-				</Grid>
-			</form>
-			<Button variant="contained" onClick={props.closeDialog}>
-				CANCEL
-			</Button>
-			<Snackbar
-				open={state.openSnack}
-				message="You have successfully updated this listing!"
-				anchorOrigin={{
-					vertical: "bottom",
-					horizontal: "center",
-				}}
-				autoHideDuration={3000}
-				onClose={() => dispatch({ type: "closeTheSnack" })}
-			/>
-		</div>
+						autoHideDuration={3000}
+						onClose={() => dispatch({ type: "closeTheSnack" })}
+					/>
+				</Paper>
+			</Container>
+		</Box>
 	);
 }
 

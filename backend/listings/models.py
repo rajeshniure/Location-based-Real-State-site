@@ -62,7 +62,7 @@ class Poi(models.Model):
     choices_type = (
         ('University', 'University'),
         ('Hospital', 'Hospital'),
-        ('Stadium', 'Stadium'),
+        ('Temple', 'Temple'),
     )
     type = models.CharField(max_length=50, choices=choices_type)
     location = models.PointField(srid=4326, blank=True, null=True)

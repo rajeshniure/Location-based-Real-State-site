@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     if (openSnack) {
       setTimeout(() => {
-        navigate("0");
+        navigate("/");
       }, 1500);
     }
   }, [openSnack]);

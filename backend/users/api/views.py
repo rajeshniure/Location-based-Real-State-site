@@ -17,3 +17,9 @@ class ProfileUpdate(generics.UpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     lookup_field = 'seller'
+
+    
+class ProfileDelete(generics.DestroyAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    lookup_field = 'seller'
