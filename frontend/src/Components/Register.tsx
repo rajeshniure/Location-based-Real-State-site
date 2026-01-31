@@ -323,7 +323,7 @@ function Register() {
                   fontSize: { xs: "0.875rem", md: "1rem" },
                 }}
               >
-                Join Ghar Sewa and start your property journey
+                Join Live Better and start your property journey
               </Typography>
             </Box>
 

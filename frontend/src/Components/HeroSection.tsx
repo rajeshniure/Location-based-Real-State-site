@@ -56,7 +56,7 @@ function HeroSection() {
               mr: { xs: 0, sm: 1 },
             }}
           >
-            Ghar
+            Live
           </Typography>
           <Typography
             variant="h2"
@@ -67,7 +67,7 @@ function HeroSection() {
               fontSize: { xs: "2.5rem", md: "5rem" },
             }}
           >
-            Sewa
+            Better
           </Typography>
         </Box>
 

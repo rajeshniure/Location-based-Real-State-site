@@ -233,7 +233,7 @@ function Login() {
                   fontSize: { xs: "0.875rem", md: "1rem" },
                 }}
               >
-                Sign in to continue to Ghar Sewa
+                Sign in to continue to Live Better
               </Typography>
             </Box>
 

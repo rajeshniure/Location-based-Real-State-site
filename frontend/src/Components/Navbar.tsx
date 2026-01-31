@@ -104,14 +104,14 @@ const Navbar: React.FC = () => {
               fontWeight={700}
               sx={{ cursor: "pointer", color: "#EBAF70" }}
             >
-              Ghar
+              Live
             </Typography>
             <Typography
               variant="h4"
               fontWeight={700}
               sx={{ cursor: "pointer" }}
             >
-              Sewa
+              Better
             </Typography>
           </Box>
 
